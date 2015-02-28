@@ -1,3 +1,0 @@
-<?php
-echo "LÓFASZ aas";
-
