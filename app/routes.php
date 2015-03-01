@@ -11,11 +11,15 @@
 |
 */
 
-Route::get('/', function()
-{
-	return View::make('categories.index');
-});
+Route::get('/', 'CategoryController@index');
 
+
+Route::get('login',array('as'=>'login', 'uses' =>'UserController@getLogin'));
+Route::post('login',array('as'=>'login.post', 'uses' =>'UserController@postLogin'));
+Route::get('logout',array('as'=>'logout', 'uses' =>'UserController@getLogout'));
+
+Route::any('users/create', array('as' => 'users.create', 'uses' => 'UserController@create'));
+Route::any('users/register', array('as' => 'users.register', 'uses' => 'UserController@store'));
 
 Route::resource('categories', 'CategoryController');
 Route::post('categories/destroy/{id}', array('as' => 'delCateg', 'uses' => 'CategoryController@delCateg'));
@@ -26,3 +30,5 @@ Route::any('menuitems', array('as' => 'menuitems.index', 'uses' => 'MenuitemsCon
 Route::any('menuitems/create', array('as' => 'menuitems.create', 'uses' => 'MenuitemsController@create'));
 Route::any('menuitems/createItem', array('as' => 'menuitems.createItem', 'uses' => 'MenuitemsController@store'));
 Route::post('menuitems/destroy/{id}', array('as' => 'delItem', 'uses' => 'MenuitemsController@delProd'));
+Route::any('menuitems/show/{id}', array('as'=>'menuitems.show', 'uses'=>'MenuitemsController@getShow'));
+Route::any('menuitems/search', array('as'=>'menuitems.search', 'uses'=>'MenuitemsController@getSearch'));

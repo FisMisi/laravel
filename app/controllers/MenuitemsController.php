@@ -3,7 +3,7 @@
 class MenuitemsController extends \BaseController {
 
     public function index() {
-        $menuitems = Menuitem::all();
+        $menuitems = Menuitem::take(4)->orderBy('price')->get();
         $categories = [];
 
         foreach (Category::all() as $categ) {
@@ -16,6 +16,23 @@ class MenuitemsController extends \BaseController {
 
     public function create() {
         return View::make('menuitems.create');
+    }
+    
+    public function getShow($id)
+    {
+        $item = Menuitem::find($id);
+        
+        return View::make('menuitems.show')->with('item', $item);
+    }
+    
+    public function getSearch()
+    {
+        $keyword = Input::get('keyword');
+        $menuitems = Menuitem::where('name', 'LIKE', '%'.$keyword.'%')->get();
+        
+        return View::make('menuitems.search')
+                ->with('key', $keyword)
+                ->with('menuitems', $menuitems);
     }
 
     public function store() {

@@ -1,9 +1,9 @@
 @extends('layouts.main')
 
-@section('content')
-<h1>Étlap elemei</h1>
 
-    @if(count($menuitems))
+@section('content')
+    <h1>Keresés eredménye a '{{ $key }}' kulcsszóra</h1>
+     @if(count($menuitems))
         <ul>
         @foreach($menuitems as $item)
             <li>
@@ -16,6 +16,7 @@
         @endforeach
         </ul>
     @else
-        <p>Nincs megjelenítendő étlap elem</p>
+        <p>Nincs keresésre eredmény</p>
     @endif
+    
 @stop
