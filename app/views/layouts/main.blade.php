@@ -46,6 +46,7 @@
                                 <li><a href="{{URL::route('login')}}">Belépés </a></li>
                                 @else
                                 <li><a href="#">Üdv. {{ Auth::user()->username }}</a></li>
+                                <li><a href="{{URL::to('users/editUser')}}">Adataim módosítása</a></li>
                                 <li><a href="{{URL::route('logout')}}">Kilépés </a></li>
                                 @endif
                             </ul>

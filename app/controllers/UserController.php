@@ -47,6 +47,21 @@ class UserController extends \BaseController
                 ->with('message','Köszönjük a regisztrációt');
     }
     
+    public function update($id)
+    {
+        
+        
+        dd($id);
+    }
+    
+    public function editUser()
+    {
+        $user = User::where('id','=',Auth::user()->id)->firstOrFail();
+        
+        return View::make('users.edit', compact('user'));
+    }
+   
+    
     public function getLogin()
     {
         return View::make('users.login');
@@ -73,46 +88,6 @@ class UserController extends \BaseController
     {
         Auth::logout();
         return View::make('users.login');
-    }
-    
-
-    /**
-     * Felhasználó frissítés form.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function edit($id) 
-    {
-        $user = User::findOrFail($id);
-
-        return View::make('user.edit', compact('user'));
-    }
-
-    /**
-     * Adatok frissítése User formon.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function update($id) 
-    {
-        $user = User::findOrFail($id);
-        
-        //frissítés esetén az egyedi azonosítókat, vagyis a username értéket külön kell validálni
-        $data = Input::all();
-        $rules = User::$rules;
-        $rules['username']['unique'] = 'unique:users,username,' . $id;
-        
-        $valid = Validator::make($data, $rules);
-
-        if ($valid->fails()) {
-            return Redirect::back()->withErrors($valid)->withInput();
-        }
-        
-        $user->update($data);
-
-        return Redirect::route('user.index');
     }
     
     /**

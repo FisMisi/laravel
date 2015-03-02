@@ -20,6 +20,8 @@ Route::get('logout',array('as'=>'logout', 'uses' =>'UserController@getLogout'));
 
 Route::any('users/create', array('as' => 'users.create', 'uses' => 'UserController@create'));
 Route::any('users/register', array('as' => 'users.register', 'uses' => 'UserController@store'));
+Route::any('users/update/{id}', array('as' => 'users.update', 'uses' => 'UserController@update'));
+Route::any('users/editUser', array('as' => 'users.editUser', 'uses' => 'UserController@editUser'));
 
 Route::resource('categories', 'CategoryController');
 Route::post('categories/destroy/{id}', array('as' => 'delCateg', 'uses' => 'CategoryController@delCateg'));
