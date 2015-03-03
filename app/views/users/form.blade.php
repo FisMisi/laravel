@@ -24,6 +24,17 @@
 </div>
 
 <div class="form-group">  
+    {{ Form::label('img_path','Profilkép', array('class' => 'col-sm-3 control-label')) }}
+    <div class="col-sm-3">
+        @if(isset($user->img_path))
+            {{ HTML::image($user->img_path,$user->img_path,array('width' => '50')) }}
+        @endif
+        {{ Form::file('img_path') }}
+        {{ $errors->first('img_path') }}
+    </div>
+</div>
+
+<div class="form-group">  
     {{ Form::label('password','Jelszó', array('class' => 'col-sm-3 control-label')) }}
     <div class="col-sm-3">
         {{ Form::password('password', null, array('class' => 'form-control')) }}

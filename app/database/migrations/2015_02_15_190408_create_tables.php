@@ -21,6 +21,7 @@ class CreateTables extends Migration {
                 $table->string('city',30);
                 $table->string('address',50);
                 $table->string('phone',30);
+                $table->string('img_path');
                 $table->softDeletes();
             });
             
