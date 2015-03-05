@@ -23,7 +23,7 @@ class Menuitem extends Eloquent
     
     public static function getReady()
     {
-        return self::where('availability', '=', 1);
+        return self::where('availability', '=', 1)->orderBy('price','desc')->paginate(4);
     }
 
 

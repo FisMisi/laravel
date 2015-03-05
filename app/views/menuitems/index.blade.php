@@ -15,6 +15,7 @@
             </li>
         @endforeach
         </ul>
+        {{ $menuitems->links() }}
     @else
         <p>Nincs megjelenítendő étlap elem</p>
     @endif

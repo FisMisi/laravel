@@ -3,7 +3,7 @@
 class MenuitemsController extends \BaseController {
 
     public function index() {
-        $menuitems = Menuitem::take(4)->orderBy('price')->get();
+        $menuitems = Menuitem::getReady();
         $categories = [];
 
         foreach (Category::all() as $categ) {
