@@ -12,13 +12,19 @@
 */
 
 /*Admin section*/
-Route::group(array('prefix'=>'admin'),function(){
-//    Route::resource('users','AdminUserController',array('except' => array('show')));
-    Route::resource('categories','AdminCategoryController', array('except' => array('show')));    
+Route::group(array('prefix'=>'admin'),function()
+{
+    Route::get('users/index',array('as'=>'admin.users.index', 'uses' =>'AdminUserController@index'));
+    Route::post('users/index',array('as'=>'admin.users.postindex', 'uses' =>'AdminUserController@index'));
+    Route::resource('users','AdminUserController',array('except' => array('show')));
+    
+    Route::resource('categories','AdminCategoryController', array('except' => array('show')));
+    
+    Route::get('menuitems/index',array('as'=>'admin.menuitems.index', 'uses' =>'AdminMenuitemController@index'));
+    Route::post('menuitems/index',array('as'=>'admin.menuitems.postindex', 'uses' =>'AdminMenuitemController@index'));
     Route::resource('menuitems','AdminMenuitemController', array('except' => array('show')));    
 });
-Route::get('admin/users/index',array('as'=>'admin.users.index', 'uses' =>'AdminUserController@index'));
-Route::post('admin/users/index',array('as'=>'admin.users.index', 'uses' =>'AdminUserController@index'));
+
 
 /*end Admin section*/
 

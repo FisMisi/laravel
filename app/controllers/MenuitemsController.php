@@ -1,6 +1,7 @@
 <?php
 
-class MenuitemsController extends \BaseController {
+class MenuitemsController extends \BaseController 
+{
 
     public function index() {
         $menuitems = Menuitem::getReady();

@@ -1,13 +1,13 @@
-@extends('layouts.main')
+@extends('layouts.admin')
 
-@section('content') 
+@section('admincontent') 
 
-    <h2>Adatok Frissítése</h2>
+    <p class='bg-primary flashmsg'> {{ $user->getFullName() }} adatai </p>
     
-    {{ Form::model($user, array('url' => array('users/update', $user->id), 'files'=>true, 'method'=>'put','class'=>'form-horizontal')) }}
+{{ Form::model($user, array('route' => array('admin.users.update', $user->id),'method'=>'put','class'=>'form-horizontal')) }}
     
-        @include('users.form')
+        @include('admin.users.form')
     
-    {{ Form::close() }}
+{{ Form::close() }}
 @stop
 

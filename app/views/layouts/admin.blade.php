@@ -35,15 +35,15 @@
                     </div>
                     <!-- tartalom -->
                     <div class="col-sm-10">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                @yield('szuro')
+                            </div>
+                        </div>
                         <div>
                             @if (Session::has('message'))
-                            <p class="bg-primary">{{Session::get('message')}}</p>
+                            <p class="bg-info flashmsg">{{Session::get('message')}}</p>
                             @endif
-                        </div>
-                        <div class="row">
-<!--                            <div class="col-sm-12">
-                                @yield('szuro')
-                            </div>-->
                         </div>
                         @yield('admincontent')    
                     </div>

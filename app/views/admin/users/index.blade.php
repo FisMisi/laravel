@@ -1,20 +1,20 @@
 @extends('layouts.admin')
 
 @section('admincontent')
-
-        <p class="bg-primary">szűrő</p>
+    
+    @section('szuro')
+        <p class="bg-primary flashmsg">szűrő</p>
         <div class="szuro">
-            
-           
-        {{ Form::open(array('route' => array('admin.users.index'),'class'=>'form-horizontal')) }}
-            {{ Form::label('adminbb','Státusz') }}
-            {{ Form::text('admin') }}
-<!--            {{ Form::select('admin', array( 'def' => '- All -', '0' => 'user', '1' => 'admin'),null, array('selected'=>'def', 'class' => 'form-control')) }}-->
-            {{ Form::submit('GO') }}
-        {{ Form::close() }}
+        
+            {{ Form::open(array('route' => array('admin.users.postindex'),'class'=>'form-inline')) }}
+                {{ Form::label('admin','Státusz') }}
+                {{ Form::select('admin', array('all' => '- All -', 'user' => 'user',  'admin' => 'admin'),null, array('selected'=>'all', 'class' => 'form-control')) }}
+                {{ Form::submit('GO',array('class'=>'btn btn-success')) }}
+            {{ Form::close() }}
+        
         </div>
-   
-  <p class="bg-primary">USERS</p>
+    @stop
+  <p class="bg-primary flashmsg">USERS</p>
    <table class="table table-striped">
     <tr>
         <th>Full Name</th>
@@ -26,9 +26,10 @@
         <td>{{ $user->getFullName() }}</td>
         <td>{{ $user->username }}</td>
         <td>@if($user->admin == 1) Yes @else No @endif</td>
+        <td>{{ link_to_route('admin.users.edit', 'View',array($user->id),array('class' => 'btn btn-info btn-sm')) }}</td>
     </tr>    
     @endforeach
    </table>
-  {{ $users->links(); }}
+  {{ $users->appends(array('admin' =>Input::get('admin')))->links(); }}
   
 @stop

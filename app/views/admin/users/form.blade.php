@@ -28,28 +28,30 @@
     <div class="col-sm-3">
         @if(isset($user->img_path))
             {{ HTML::image($user->img_path,$user->img_path,array('width' => '50')) }}
+        @else <i>Még nem töltött fel képet</i>    
         @endif
-        {{ Form::file('img_path') }}
-        {{ $errors->first('img_path') }}
     </div>
 </div>
 
-<div class="form-group">  
-    {{ Form::label('password','Jelszó', array('class' => 'col-sm-3 control-label')) }}
-    <div class="col-sm-3">
-        {{ Form::password('password', null, array('class' => 'form-control')) }}
-        {{ $errors->first('password') }}
+<div class="form-group">
+    <div class="col-sm-offset-3 col-sm-9">
+      <div class="checkbox">
+        <label>
+          {{ Form::checkbox('admin') }} Admin
+        </label>
+      </div>
     </div>
 </div>
 
-<div class="form-group">  
-    {{ Form::label('password_confirmation','Jelszó újra', array('class' => 'col-sm-3 control-label')) }}
-    <div class="col-sm-3">
-        {{ Form::password('password_confirmation', null, array('class' => 'form-control')) }}
-        {{ $errors->first('password') }}
+<div class="form-group">
+    <div class="col-sm-offset-3 col-sm-9">
+      <div class="checkbox">
+        <label>
+          {{ Form::checkbox('delete') }} Delete {{ $user->getFullName() }}
+        </label>
+      </div>
     </div>
 </div>
-
 
 <div class="form-group">
     <div class="col-sm-offset-3 col-sm-9"> 

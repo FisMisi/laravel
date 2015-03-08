@@ -2,8 +2,8 @@
 
 @section('admincontent')
 
-    <p class='bg-primary flashmsg'> Új Termék hozzáadása </p>
-    
+    <p class='bg-primary flashmsg'> {{ $menuitem->name }} adatai </p>
+
     @if($errors->has())
     <ul>
       @foreach($errors->all() as $error)
@@ -11,8 +11,9 @@
       @endforeach
     </ul> 
     @endif
-    
-    {{ Form::open(array('route' => array('admin.menuitems.create'), 'files'=>true, 'class' => 'form-horizontal')) }}
+       
+    {{ Form::model($menuitem,array('route' => array('admin.menuitems.update', $menuitem->id), 'method'=>'put', 'files'=>true, 'class' => 'form-horizontal')) }}
         @include('admin.menuitems.form')
     {{ Form::close() }}
+    
 @stop

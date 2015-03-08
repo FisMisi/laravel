@@ -21,16 +21,28 @@ class Menuitem extends Eloquent
         "availability"=> 'integer'
     ];
     
-    public static function getReady()
-    {
-        return self::where('availability', '=', 1)->orderBy('price','desc')->paginate(4);
-    }
+    public static $update_rules = [
+        "name"        => array('required','max:30'),
+        "price"       => array('required','numeric'),
+        "category_id" => array('required','integer'),
+        "image"       => array('image','mimes:jpeg,jpg,bmp,png,gif'),
+        "availability"=> 'integer'
+    ];
     
-    public static function getQuery()
+    public static function getQuery($availability, $type)
     {
         $query = self::join('categories', 'menuitems.category_id', '=', 'categories.id');
         
-        return $query->take(10)->paginate(5, array(
+        if($availability != 2){
+            $query = $query->where('menuitems.availability', '=', $availability); 
+        }
+        
+        if($type != 0){
+            $query = $query->where('menuitems.category_id', '=', $type); 
+        }
+        
+        return $query->paginate(6, array(
+                'menuitems.id as menuitem_id',
                 'menuitems.name as product_name',
                 'menuitems.price as product_price',
                 'menuitems.availability as product_availability',

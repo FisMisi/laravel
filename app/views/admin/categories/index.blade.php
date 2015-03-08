@@ -3,7 +3,7 @@
 @section('admincontent')
 
   @if(count($categories))
-  <p class="bg-primary">CATEGORIES</p>
+  <p class="bg-primary flashmsg">CATEGORIES</p>
    <table class="table table-striped">
     <tr>
         <th>Category Name</th>
