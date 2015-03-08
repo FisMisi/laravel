@@ -11,7 +11,19 @@
 |
 */
 
-Route::get('/', 'CategoryController@index');
+/*Admin section*/
+Route::group(array('prefix'=>'admin'),function(){
+//    Route::resource('users','AdminUserController',array('except' => array('show')));
+    Route::resource('categories','AdminCategoryController', array('except' => array('show')));    
+    Route::resource('menuitems','AdminMenuitemController', array('except' => array('show')));    
+});
+Route::get('admin/users/index',array('as'=>'admin.users.index', 'uses' =>'AdminUserController@index'));
+Route::post('admin/users/index',array('as'=>'admin.users.index', 'uses' =>'AdminUserController@index'));
+
+/*end Admin section*/
+
+
+Route::get('/', 'UserController@getLogin');
 
 
 Route::get('login',array('as'=>'login', 'uses' =>'UserController@getLogin'));

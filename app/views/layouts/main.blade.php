@@ -58,7 +58,7 @@
 
                 <div class="row">
                     <!-- oldalsó menü -->
-                    <div class="col-sm-2">
+                    <div class="col-sm-3">
                         {{ Form::open(array('route'=>array('menuitems.search'))) }}
                         {{Form::text('keyword',null,array('placeholder' => 'Ide írja be a keresendő tételt'))}}
                         {{Form::submit('Keresés')}}
@@ -66,7 +66,7 @@
                         @yield('sidebar')
                     </div>
                     <!-- tartalom -->
-                    <div class="col-sm-10">
+                    <div class="col-sm-9">
                         <div>
                             @if (Session::has('message'))
                             <p class="bg-primary">{{Session::get('message')}}</p>

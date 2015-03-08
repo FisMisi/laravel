@@ -25,7 +25,18 @@ class Menuitem extends Eloquent
     {
         return self::where('availability', '=', 1)->orderBy('price','desc')->paginate(4);
     }
-
+    
+    public static function getQuery()
+    {
+        $query = self::join('categories', 'menuitems.category_id', '=', 'categories.id');
+        
+        return $query->take(10)->paginate(5, array(
+                'menuitems.name as product_name',
+                'menuitems.price as product_price',
+                'menuitems.availability as product_availability',
+                'categories.name as categ_name',
+            ));
+    }
 
     public function category()
     {
