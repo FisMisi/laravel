@@ -12,20 +12,28 @@
 */
 
 /*Admin section*/
-Route::group(array('prefix'=>'admin'),function()
+Route::group(array('before' => 'auth'),function()
 {
-    Route::get('users/index',array('as'=>'admin.users.index', 'uses' =>'AdminUserController@index'));
-    Route::post('users/index',array('as'=>'admin.users.postindex', 'uses' =>'AdminUserController@index'));
-    Route::resource('users','AdminUserController',array('except' => array('show')));
+    Route::get('/admin/users/index',array('as'=>'admin.users.index', 'uses' =>'AdminUserController@index'));
+    Route::post('/admin/users/index',array('as'=>'admin.users.postindex', 'uses' =>'AdminUserController@index'));
+    Route::resource('/admin/users','AdminUserController',array('except' => array('show')));
+
+   Route::get('/admin/categories/cat/create',array('as'=>'admin.categories.cat.create', 'uses' =>'AdminCategoryController@createCategory'));
+    Route::any('/admin/categories/cat/{id}', array('as' => 'admin.categories.cat', 'uses' => 'AdminCategoryController@lists'));
     
-    Route::resource('categories','AdminCategoryController', array('except' => array('show')));
+     Route::any('/admin/categories', array('as' => 'admin.categories.index', 'uses' => 'AdminCategoryController@index'));
+    Route::get('/admin/categories/type/create/{id}',array('as'=>'admin.categories.type.create', 'uses' =>'AdminCategoryController@createType'));
+    Route::post('/admin/categories/cat/save',array('as'=>'admin.categories.cat.save', 'uses' =>'AdminCategoryController@saveCategory'));
+    Route::post('/admin/categories/type/save',array('as'=>'admin.categories.type.save', 'uses' =>'AdminCategoryController@saveCategoryType'));
     
-    Route::get('menuitems/index',array('as'=>'admin.menuitems.index', 'uses' =>'AdminMenuitemController@index'));
-    Route::post('menuitems/index',array('as'=>'admin.menuitems.postindex', 'uses' =>'AdminMenuitemController@index'));
-    Route::resource('menuitems','AdminMenuitemController', array('except' => array('show')));    
+    Route::get('/admin/menuitems/index',array('as'=>'admin.menuitems.index', 'uses' =>'AdminMenuitemController@index'));
+    Route::post('/admin/menuitems/index',array('as'=>'admin.menuitems.postindex', 'uses' =>'AdminMenuitemController@index'));
+    Route::resource('/admin/menuitems','AdminMenuitemController', array('except' => array('show')));    
 });
 
-
+Route::get('admin/login','AdminUserController@getLogin');
+Route::post('admin/login','AdminUserController@postLogin');
+Route::get('admin/logout',array('as'=>'admin.getLogout', 'uses'=>'AdminUserController@getLogout'));
 /*end Admin section*/
 
 

@@ -30,11 +30,15 @@
                
                 <div class="row">
                     <!-- oldalsó menü -->
-                    <div class="col-sm-2">
+                    @if(Auth::check())
+                    
+                    <div class="col-sm-3">
                         @include('layouts.partials.adminmenu')
                     </div>
+                    
+                    @endif
                     <!-- tartalom -->
-                    <div class="col-sm-10">
+                    <div class="col-sm-9">
                         <div class="row">
                             <div class="col-sm-12">
                                 @yield('szuro')

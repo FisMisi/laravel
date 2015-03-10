@@ -123,17 +123,11 @@ class AdminUserController extends \BaseController
     
     public function getLogin()
     {
-        return View::make('users.login');
+        return View::make('admin.login');
     }
     
     public function postLogin()
     {
-//        $data = Input::all();
-//        $valid = Validator::make($data,User::$auth_rules);
-//        
-//        if ($valid->fails()) {
-//            return Redirect::back()->withErrors($valid)->withInput();
-//        }
         
         if (Auth::attempt(array('username' => Input::get('username'), 'password' => Input::get('password')),(Input::get('remember')==1 ? true : false))){
             return Redirect::intended('/');
@@ -146,7 +140,7 @@ class AdminUserController extends \BaseController
     public function getLogout()
     {
         Auth::logout();
-        return View::make('users.login');
+        return View::make('admin.login');
     }
     
     /**
