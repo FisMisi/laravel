@@ -18,13 +18,33 @@ Route::group(array('before' => 'auth'),function()
     Route::post('/admin/users/index',array('as'=>'admin.users.postindex', 'uses' =>'AdminUserController@index'));
     Route::resource('/admin/users','AdminUserController',array('except' => array('show')));
 
-   Route::get('/admin/categories/cat/create',array('as'=>'admin.categories.cat.create', 'uses' =>'AdminCategoryController@createCategory'));
-    Route::any('/admin/categories/cat/{id}', array('as' => 'admin.categories.cat', 'uses' => 'AdminCategoryController@lists'));
+    //főkategóriák listázása (types)
+    Route::get('/admin/categories', array('as' => 'admin.categories.index', 'uses' => 'AdminCategoryController@index'));
+    //főkategóriákhoz tartozó alkategóriák listázása
+    Route::get('/admin/categories/{id}', array('as' => '/admin/categories/{id}', 'uses' => 'AdminCategoryController@lists'));
     
-     Route::any('/admin/categories', array('as' => 'admin.categories.index', 'uses' => 'AdminCategoryController@index'));
-    Route::get('/admin/categories/type/create/{id}',array('as'=>'admin.categories.type.create', 'uses' =>'AdminCategoryController@createType'));
-    Route::post('/admin/categories/cat/save',array('as'=>'admin.categories.cat.save', 'uses' =>'AdminCategoryController@saveCategory'));
+    //főkategória létrehozása form
+    Route::get('/admin/categories/type/create',array('as'=>'admin.categories.type.create', 'uses' =>'AdminCategoryController@createType'));
+   
+    //feldolgozó főkategória létrehozása
     Route::post('/admin/categories/type/save',array('as'=>'admin.categories.type.save', 'uses' =>'AdminCategoryController@saveCategoryType'));
+    //főkategória szerkesztés form
+    Route::any('/admin/categories/type/edit/{id}',array('as'=>'admin.categories.type.edit', 'uses' =>'AdminCategoryController@editCategoryType'));
+    //főkategória mentés
+    Route::any('/admin/categories/type/update/{id}',array('as'=>'admin.categories.categoryType.update', 'uses' =>'AdminCategoryController@updateCategoryType'));
+    //főkategória státusz mentés                                                           
+    Route::any('/admin/categories/type/edit_statusz/{id}', array('as' => 'admin.categories.type.editStatusz', 'uses' => 'AdminCategoryController@editStatusz'));
+    //kategória státusz mentés                                                           
+    Route::any('/admin/categories/cat/edit_statusz/{id}', array('as' => 'admin.categories.cat.editCatStatusz', 'uses' => 'AdminCategoryController@editCatStatusz'));
+    //főkategória létrehozása form
+    Route::any('/admin/categories/cat/create/{id}',array('as'=>'admin.categories.cat.create', 'uses' =>'AdminCategoryController@createCategory'));
+     //feldolgozó kategória létrehozása
+    Route::any('/admin/categories/cat/save',array('as'=>'admin.categories.cat.save', 'uses' =>'AdminCategoryController@saveCategory'));
+    //feldolgozó kategória módosító form
+    Route::any('/admin/categories/cat/edit/{type_id}/{id}',array('as'=>'admin.categories.cat.edit', 'uses' =>'AdminCategoryController@editCategory'));
+     //kategória mentés
+    Route::any('/admin/categories/cat/update/{id}',array('as'=>'admin.categories.cat.update', 'uses' =>'AdminCategoryController@updateCategory'));
+    
     
     Route::get('/admin/menuitems/index',array('as'=>'admin.menuitems.index', 'uses' =>'AdminMenuitemController@index'));
     Route::post('/admin/menuitems/index',array('as'=>'admin.menuitems.postindex', 'uses' =>'AdminMenuitemController@index'));

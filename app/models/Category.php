@@ -2,32 +2,39 @@
 
 class Category extends Eloquent
 {
-    protected $fillable = ['name'];
+    public    $timestamps = false;
     protected $table    = 'categories';
     
     public static $rules = [
-        'name' => 'required|min:3'
+        'name' => 'required|min:3',
+        'type_id' => 'required|integer'
     ];
     
-    public static function getQuery($category, $categoryType)
+    public static function getQuery($categoryType)
     {
-        $query = self::join('category_types','categories.id','=','category_types.category_id');
+        $query = self::where('type_id','=',$categoryType);
         
-        if($category != 0){
-           $query = $query->where('categories.id','=',$category);
-        }
+        return $query->paginate(10);
         
-        if($categoryType != 0){
-           $query = $query->where('categories.category_id','=',$categoryType);
-        }
-        
-        return $query->paginate(10,array(
-              'categories.name as categoryName',
-              'category_types.name as categoryTypeName',
-              'category_types.id as categoryTypeId',
-              'categories.id as categoryId'
-            ));
-        
+    }
+    
+     public static function getCategories($type,$multiple)
+    {
+        $query = self::join('category_types', 'category_types.id', '=', 'categories.type_id')
+                 ->select('category_types.id as typeId',
+                          'category_types.title as typeTitle',
+                          'category_types.name as typeName',
+                          'categories.id as categId',
+                          'categories.title as categTitle',
+                          'categories.name as categName',
+                          'category_types.multi as multi'
+                         )
+                 ->where('categories.type_id', '=', $type)
+                 ->where('category_types.multi', '=', $multiple)
+                 ->where('categories.active', '=', 1)
+                 ->where('category_types.active', '=', 1);
+       
+        return $query->get();     
     }
     
 }

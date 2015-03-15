@@ -1,22 +1,41 @@
 <div class="form-group">
-    {{ Form::label('name', 'Category Type Name', array('class' => 'col-sm-3 control-label')) }}
+    {{ Form::label('name', 'Name', array('class' => 'col-sm-3 control-label')) }}
     <div class='col-sm-4'>
         {{ Form::text('name', null, array('class' => 'form-control')) }}
     </div>
 </div>
 
 <div class="form-group">
-    {{ Form::label('title', 'Category Type Title', array('class' => 'col-sm-3 control-label')) }}
+    {{ Form::label('title', 'Title', array('class' => 'col-sm-3 control-label')) }}
     <div class='col-sm-4'>
         {{ Form::text('title', null, array('class' => 'form-control')) }}
     </div>
 </div>
 
 <div class="form-group">
-    {{ Form::label('category_id', 'Category Name', array('class' => 'col-sm-3 control-label')) }}
+    {{ Form::label('position', 'Position', array('class' => 'col-sm-3 control-label')) }}
     <div class='col-sm-4'>
-        {{ $category->name }}
-        {{ Form::hidden('category_id', $category->id) }}
+        {{ Form::text('position', null, array('class' => 'form-control')) }}
+    </div>
+</div>
+
+<div class="form-group">
+    <div class="col-sm-offset-3 col-sm-9">
+      <div class="checkbox">
+        <label>
+          {{ Form::checkbox('active') }} Active
+        </label>
+      </div>
+    </div>
+</div>
+
+<div class="form-group">
+    <div class="col-sm-offset-3 col-sm-9">
+      <div class="checkbox">
+        <label>
+          {{ Form::checkbox('multi') }} Multiple options
+        </label>
+      </div>
     </div>
 </div>
 

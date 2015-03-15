@@ -20,7 +20,11 @@ class UserController extends \BaseController
      * @return Response
      */
     public function create() {
-        return View::make('users.create');
+        
+        $categoryTypes = CategoryType::getTypes();
+       
+        return View::make('users.create')
+                ->with('categoryTypes', $categoryTypes);
     }
 
     /**

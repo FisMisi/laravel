@@ -2,38 +2,61 @@
 
 class AdminCategoryController extends \BaseController
 {
-    public function index()
-    {        
-        $categories = Category::paginate(10);
-
-        return View::make('admin.categories.categories.index')
-                ->with('categories',$categories);
-    }
-    
-    public function lists($id)
+    public function index($id=null)
     {
-        $category = 0;
-        if(!empty($id)) {
-          $category = $id;  
+        $categoryTypes = CategoryType::paginate(10);
+        
+        if(!is_null($id))
+        {
+          $categories = Category::getQuery($id);
+          
+          return View::make('admin.categories.categories.index')
+                ->with('categories',$categories)
+                ->with('category_id',$id)
+                ->with('categoryTypes',$categoryTypes);
         }
         
+
+        return View::make('admin.categories.categoryTypes.index')
+                ->with('categoryTypes',$categoryTypes);
+    }
+    
+    public function editCategoryType($id)
+    {
+        $categoryType = CategoryType::where('id','=',$id)->first();
+        
+        return View::make('admin.categories.categoryTypes.edit')
+                ->with('categoryType', $categoryType);
+    }
+    
+   
+    
+    //főkategóriákhoz tartozó alkategóriák listázása
+    public function lists($id)
+    {
         $categoryType = 0;
+        if($id) {
+          $categoryType = $id;  
+        }
+       
 //        if(!empty($_GET['type_id'])) {
 //          $categoryType = $_GET['type_id'];  
 //        }
         
-        $categoryTypes = Category::getQuery($category, $categoryType);
-        $categories = Category::all();
+        $categories = Category::getQuery($categoryType);
+        $categoryTypes = CategoryType::all();
         
         return View::make('admin.categories.categories.index')
                 ->with('categories',$categories)
-                ->with('categoriy_id',$id)
+                ->with('categoryTypeId',$id)
                 ->with('categoryTypes',$categoryTypes);
     }
 
-    public function createCategory()
+    public function createCategory($id)
     {
-        return View::make('admin.categories.categories.create');
+        $categoryType = CategoryType::where('id','=',$id)->first();
+        return View::make('admin.categories.categories.create')
+               ->with('categoryType',$categoryType);
     }
     
     public function saveCategory()
@@ -43,6 +66,10 @@ class AdminCategoryController extends \BaseController
         if($valid->passes()){
             $categ = new Category();
             $categ->name = Input::get('name');
+            $categ->title = Input::get('title');
+            $categ->active = (Input::get('active')) ? Input::get('active') : 0;
+            $categ->type_id = Input::get('type_id');
+            
             $categ->save();
             
             return Redirect::route('admin.categories.index')
@@ -55,27 +82,69 @@ class AdminCategoryController extends \BaseController
                 ->withErrors($valid);
     }
     
-    public function delCategory($id)
+     public function editCategory($type_id,$id)
     {
-        $model = Category::find($id);
+        $category = Category::where('id','=',$id)->first();
+   
+        $categoryType = CategoryType::where('id','=',$type_id)->first();
         
-        if ($model){
-            $model->delete();
-            return Redirect::route('categories.index')
-                    ->with('message', 'Sikeresen törölve lett a kategória');
-        }
-        
-        return Redirect::back()
-                    ->with('message', 'Nincs ilyen kategória');
+        return View::make('admin.categories.categories.edit')
+                ->with('category', $category)
+                ->with('categoryType',$categoryType);
     }
     
     
-    public function createType($id)
+    public function updateCategory($id)
     {
-        $category = Category::where('id','=',$id)->first();
+        $valid = Validator::make(Input::all(),  Category::$rules);
         
-        return View::make('admin.categories.categoryTypes.create')
-                ->with('category', $category);
+        if($valid->passes()){
+            $categ = Category::find($id);
+            $categ->name = Input::get('name');
+            $categ->title = Input::get('title');
+            $categ->active = (Input::get('active')!=null) ? Input::get('active') : 0;
+            $categ->type_id = Input::get('type_id');
+            
+            $categ->update();
+            return Redirect::route('admin.categories.index')
+                    ->with('message', 'Sikeresen hozzá lett adva az új kategória');  
+        }
+        
+        return Redirect::back()
+                ->with('message', 'Hiha!')
+                ->withInput()
+                ->withErrors($valid);
+    }
+    
+    
+    public function updateCategoryType($id)
+    {
+        $valid = Validator::make(Input::all(), CategoryType::$rules);
+        
+        if($valid->passes()){
+            $categ = CategoryType::find($id);
+            $categ->name  = Input::get('name');
+            $categ->title = Input::get('title');
+            $categ->active = (Input::get('active')) ? Input::get('active') : 0;
+            $categ->multi = (Input::get('multi')) ? Input::get('multi') : 0;
+            
+            $categ->update();
+            
+            return Redirect::route('admin.categories.index')
+                    ->with('message', 'Sikeresen hozzá lett adva az új kategória');  
+        }
+        
+        return Redirect::back()
+                ->with('message', 'Hiha!')
+                ->withInput()
+                ->withErrors($valid);
+    }
+    
+    
+    public function createType()
+    {
+        
+        return View::make('admin.categories.categoryTypes.create');
     }
     
     public function saveCategoryType()
@@ -86,7 +155,9 @@ class AdminCategoryController extends \BaseController
             $categ = new CategoryType();
             $categ->name = Input::get('name');
             $categ->title = Input::get('title');
-            $categ->category_id = Input::get('category_id');
+            $categ->active = (Input::get('active')) ? Input::get('active') : 0;
+            $categ->multi = (Input::get('multi')) ? Input::get('multi') : 0;
+            
             $categ->save();
             
             return Redirect::route('admin.categories.cat',array('id'=>$categ->category_id))
@@ -99,20 +170,33 @@ class AdminCategoryController extends \BaseController
                 ->withErrors($valid);
     }
     
-    public function delCategoryType($id)
+    
+    public function editStatusz($id)
+    {
+        $model = CategoryType::find($id);
+        
+        if ($model->active == 0){
+            $model->active = 1;
+        }else{
+            $model->active = 0;
+        }
+        $model->update();
+        
+        return Redirect::route('admin.categories.index');
+    }
+    
+    public function editCatStatusz($id)
     {
         $model = Category::find($id);
         
-        if ($model){
-            $model->delete();
-            return Redirect::route('categories.index')
-                    ->with('message', 'Sikeresen törölve lett a kategória');
+        if ($model->active == 0){
+            $model->active = 1;
+        }else{
+            $model->active = 0;
         }
+        $model->update();
         
-        return Redirect::back()
-                    ->with('message', 'Nincs ilyen kategória');
+        return Redirect::route('admin.categories.index');
     }
-    
-    
 }
 

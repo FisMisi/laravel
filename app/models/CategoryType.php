@@ -9,7 +9,16 @@ class CategoryType extends Eloquent
     public static $rules = [
         'name'        => 'required|min:3',
         'title'       => 'required|min:3',
-        'category_id' => 'required|integer'
+        
     ];
+ 
+    public static function getTypes()
+    {   
+        $query = self::where('active', '=', 1);
+        
+        
+        return $query->get();
+    }
+    
     
 }

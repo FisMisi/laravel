@@ -34,6 +34,28 @@
     </div>
 </div>
 
+@foreach($categoryTypes as $type)
+<div class="col-sm-offset-1 col-sm-11">
+    <b>{{ $type->title }}</b>
+    @foreach(Category::getCategories($type->id,$type->multi) as $category)
+       @if($type->multi == 1)
+          {{ Form::checkbox($type->name.'[]',$category->categName) }} {{ $category->categTitle }}  
+       @else
+          {{ Form::radio($type->name,$category->categName) }} {{ $category->categTitle }}
+       @endif 
+    @endforeach
+</div>
+@endforeach
+<div class="form-group">
+    <div class="col-sm-offset-3 col-sm-9">
+      <div class="checkbox">
+        <label>
+          {{ Form::checkbox('availability') }} Availability
+        </label>
+      </div>
+    </div>
+</div>
+
 <div class="form-group">  
     {{ Form::label('password','Jelszó', array('class' => 'col-sm-3 control-label')) }}
     <div class="col-sm-3">

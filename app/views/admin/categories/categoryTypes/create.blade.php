@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('admincontent')
-<p class='bg-primary flashmsg'> Új {{ $category->name }} Típus hozzáadása </p>
+<p class='bg-primary flashmsg'> Új Típus hozzáadása </p>
     @if($errors->has())
     
     <ul>

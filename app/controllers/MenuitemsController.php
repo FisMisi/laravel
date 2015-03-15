@@ -4,7 +4,7 @@ class MenuitemsController extends \BaseController
 {
 
     public function index() {
-        $menuitems = Menuitem::getReady();
+        $menuitems = Menuitem::where('availability', '=', 1)->paginate(5);
         $categories = [];
 
         foreach (Category::all() as $categ) {
