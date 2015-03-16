@@ -15,9 +15,8 @@ class CategoryType extends Eloquent
     public static function getTypes()
     {   
         $query = self::where('active', '=', 1);
-        
-        
-        return $query->get();
+ 
+        return $query->get()->toArray();
     }
     
     

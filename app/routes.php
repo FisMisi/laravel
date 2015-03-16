@@ -64,10 +64,23 @@ Route::get('login',array('as'=>'login', 'uses' =>'UserController@getLogin'));
 Route::post('login',array('as'=>'login.post', 'uses' =>'UserController@postLogin'));
 Route::get('logout',array('as'=>'logout', 'uses' =>'UserController@getLogout'));
 
+//step1 form
 Route::any('users/create', array('as' => 'users.create', 'uses' => 'UserController@create'));
-Route::any('users/register', array('as' => 'users.register', 'uses' => 'UserController@store'));
+//step1 save
+Route::any('users/save', array('as' => 'users.save', 'uses' => 'UserController@store'));
+//step2 form
+Route::any('users/create/step2/{id}', array('as' => '/users/create/step2/{id}', 'uses' => 'UserController@create2'));
+//step2 save->register
+Route::any('users/register', array('as' => 'users.register', 'uses' => 'UserController@store2'));
+
+//step1 edit form
+Route::any('users/edit', array('as' => 'users.edit', 'uses' => 'UserController@edit'));
+//step2 edit form
+Route::any('users/edit2', array('as' => 'users.edit2', 'uses' => 'UserController@edit2'));
+//step2 update step1
 Route::any('users/update/{id}', array('as' => 'users.update', 'uses' => 'UserController@update'));
-Route::any('users/editUser', array('as' => 'users.editUser', 'uses' => 'UserController@editUser'));
+//step2 update step2
+Route::any('users/update2', array('as' => 'users.update2', 'uses' => 'UserController@update2'));
 
 Route::resource('categories', 'CategoryController');
 Route::post('categories/destroy/{id}', array('as' => 'delCateg', 'uses' => 'CategoryController@delCateg'));

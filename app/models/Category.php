@@ -18,23 +18,24 @@ class Category extends Eloquent
         
     }
     
-     public static function getCategories($type,$multiple)
-    {
-        $query = self::join('category_types', 'category_types.id', '=', 'categories.type_id')
-                 ->select('category_types.id as typeId',
-                          'category_types.title as typeTitle',
-                          'category_types.name as typeName',
-                          'categories.id as categId',
-                          'categories.title as categTitle',
-                          'categories.name as categName',
-                          'category_types.multi as multi'
-                         )
-                 ->where('categories.type_id', '=', $type)
-                 ->where('category_types.multi', '=', $multiple)
-                 ->where('categories.active', '=', 1)
-                 ->where('category_types.active', '=', 1);
-       
-        return $query->get();     
+    public static function getCategories($type, $userId)
+    {   #DB::enableQueryLog();
+        $query = self::leftJoin('user_category', function($join) use($userId)
+            {
+                $join->on('user_category.category_id', '=', 'categories.id')  
+                ->where('user_category.user_id', '=', $userId);
+            })
+                ->where('categories.type_id', '=', $type)
+                ->where('categories.active', '=', 1);
+            
+        $ret = $query->get(array('categories.id as categId',
+                                 'categories.title as categTitle',
+                                 'user_category.user_id as userId')
+                     )->toArray();     
+        /*$queries = DB::getQueryLog();
+        $last_query = end($queries);
+        var_dump($last_query);*/
+        return $ret;
     }
     
 }
