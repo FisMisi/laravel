@@ -7,7 +7,7 @@
         <a class="btn btn-link" href="{{ route('admin.categories.index') }}"> All category </a>
         @if(count($categoryTypes))
             @foreach($categoryTypes as $category)
-                <a class="btn btn-link" href="{{ route('/admin/categories/{id}',array('id'=>$category->id)) }}"> {{ $category->name }} </a>
+                <a class="btn btn-link" href="{{ route('/admin/categories/{id}',array('id'=>$category->id)) }}"> {{ $category->title }} </a>
             @endforeach
         @endif
     </div>    

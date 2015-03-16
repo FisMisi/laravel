@@ -3,11 +3,11 @@
 @section('admincontent')
 <div class="row"> 
     <div class="col-sm-12">
-        <a class="btn btn-info" href="{{ route('admin.categories.cat.create') }}"> New Category Type</a>
+        <a class="btn btn-info" href="{{ route('admin.categories.type.create') }}"> New Category Type</a>
         <a class="btn btn-link" href="{{ route('admin.categories.index') }}"> All category type</a>
         @if(count($categoryTypes))
             @foreach($categoryTypes as $category)
-                <a class="btn btn-link" href="{{ route('/admin/categories/{id}',array('id'=>$category->id)) }}"> {{ $category->name }} </a>
+                <a class="btn btn-link" href="{{ route('/admin/categories/{id}',array('id'=>$category->id)) }}"> {{ $category->title }} </a>
             @endforeach
         @endif
     </div>    

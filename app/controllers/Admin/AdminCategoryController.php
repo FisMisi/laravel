@@ -160,7 +160,7 @@ class AdminCategoryController extends \BaseController
             
             $categ->save();
             
-            return Redirect::route('admin.categories.cat',array('id'=>$categ->category_id))
+            return Redirect::route('/admin/categories/{id}',array('id'=>$categ->id))
                     ->with('message', 'Sikeresen hozzá lett adva az új kategória típus');  
         }
         
