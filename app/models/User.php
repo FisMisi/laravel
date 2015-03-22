@@ -22,12 +22,13 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
             'first_name'           => 'required|min:2|alpha',
             'last_name'            => 'required|min:2|alpha',
             'username'             =>  array('required','min:6','unique'=>'unique:users,username'),
+            'password'             => 'required|alpha_num|between:4,12|confirmed',
+            'password_confirmation'=> 'required|alpha_num|between:4,12',
         ];
         
          public static $rules_step2 = [
-            'password'             => 'required|alpha_num|between:4,12|confirmed',
-            'password_confirmation'=> 'required|alpha_num|between:4,12',
-            'admin'                => 'integer'
+            'os_v_vallalkozas'    => 'required|integer',
+            'vallalkozas_nev'     => 'alpha|min:2'
         ];
         
          public static $admin_rules = [
@@ -48,7 +49,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         {
             return $this->first_name.' '.$this->last_name;
         }
-        
+   
         public static function getResult($admin)
         {
             if($admin != 2){
@@ -58,5 +59,36 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
             }
             
             return $query;
+        }
+        
+        public static function getUserList($datas)
+        {
+            $query = self::join('user_category','user_category.user_id', '=', 'users.id')
+                    ->join('categories','user_category.category_id', '=', 'categories.id');
+            
+            unset($datas['_token']); 
+            $datas = array_values($datas); // 'reindex' array
+            
+            if(!empty($datas)){
+                foreach($datas as $data){
+
+                    if(is_array($data)){        //checkbox
+                        foreach($data as $id){
+                          $query->where('categories.id', '=', $id);  
+                        }
+                    }else{                      //radio
+                        $query->where('categories.id', '=', $data);
+                    }
+                }     
+            }
+          
+            $ret = $query->groupBy('users.id')->get(array(
+                        'users.id as userId',
+                        'users.username as userName',
+                        'users.img_path as image',
+                        'categories.title as categoryName'
+                        ))->toArray();
+            return $ret;
+            
         }
 }

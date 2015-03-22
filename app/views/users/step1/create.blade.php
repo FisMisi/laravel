@@ -2,7 +2,7 @@
 
 @section('content') 
 
-<h1 class="col-sm-offset-1"> Alap adatok megadása </h1>
+<h1 class="col-sm-offset-1"> Személyes adatok megadása </h1>
      
     {{ Form::open(array('route' => array('users.save'), 'files'=>true, 'class'=>'form-horizontal')) }}
     

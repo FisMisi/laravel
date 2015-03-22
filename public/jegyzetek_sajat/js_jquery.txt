@@ -1,0 +1,281 @@
+####################--JS--######################
+
+-----Lynda.com.Validating.And.Processing.Forms.With.Javascript.And.Php.Tutorial-kEISO--------
+onblur vs onchange                              --> onblur érzékeli az üres mezőt is amikor a focust változtatjuk
+select validálás								--> először lekérem az indexet (tomb.selectedIndex) aztán tomb[id].value-t már vizsgálhatom
+RegExp validálás 										--> $patt = new RegExp("[a-z]"); $patt.test($tesztelendoInput);
+onsubmit										--> document.reg_form.onsubmit = function () {} ---elküld gombra kattintva..
+document.getElementByTagName("p");				--> összes p tag kiválasztása
+
+SELECTOROK
+----------
+
+id     		-->   document.getElementById("mainTitle");
+class  		-->   document.getElementsByClassName("osztály")
+h1,a,p stb  -->   document.getElementsByTagName("h1")
+query		-->   document.querySelector("#mainTitle")
+
+
+Események
+----------
+1.
+<selector>.getEventListener('esemeny',függvény);
+
+Törlése:
+<selector>.removeEventListener('esemeny',függvény);
+
+pl:
+var gomb = document.getElementById("submitGomb");
+gomb.getEventListener('click', függvényneve);
+
+
+2.VAGY
+
+<selector>.click = function(){
+	cselekmény
+}
+
+
+<selector>.onmouseover = function(){
+	cselekmény
+}
+
+3.Legjobb
+
+registerBtn.addEventListener('click',function(event){
+	
+});
+
+
+
+
+####################--JQUERY--######################
+
+
+			 Fejlesztési praktikák:
+             **********************
+                1.ellenőrizzük, hogy a CDN jquery betöltődik-e, ha nem, akkor inkcludoljuk:
+                    <script src="......"></script>
+                    <script>
+                        window.jQuery || document.write('<script src....>');
+                    </script>
+                2. Casheljük az elemeket, magyarán deklaráljuk változóba, majd a változókra hivatkozzunk
+                3.inkább hívjuk be a css osztályokat az addClassal mint, hogy jqueryiben adjuk hozzá az attribútumokat
+                4.append() (hozzáad) úgy használjuk, hogy legkevesbszer fusson le, tehát ciklusokban először töltsük fel a tömbe a megjelenítendőket majd cikluson kívül egyszer append()
+
+
+$('document').ready(function(){					--> mindíg ezzel határoljuk a kódot
+	
+})
+
+ selektorok
+------------
+
+$('p')											--> összes p elem
+$('li.a')										--> li elemen bellül kijelöli az a osztályú elemeket
+$('div[class]')									--> class attribútummal rendelkezőket jelöli ki
+$('div[class^=form]')							--> form -al kezdődő osztályokat jelöli ki
+$('div[class^=form][required]')				    --> form -al kezdődő osztályokat jelöli ki
+
+
+ filterek 
+------------ 
+$("p:*").css("border","2px solid red");
+	*last,first,gt,eq,even
+
+	attribútum filterek:
+		$("p[*]").css("border","3px solid red");
+
+		 * class, id=nev,id^=parameter,[][] multiple
+
+    taratlom filterek:
+    	$("*").css("border,"2px solid grey");
+
+    	* p:contains(3), p:parent -> összes, ul li:last-child, ul li:nth-child(2n) -->minden második indexelt elemet kijelöli
+
+    form filterek:
+    	$("form :input") ----összes input elem kijelölve
+    	$("form :text") ----<input type="text"> elemek kijelölve
+    	$("form :checkbox:checked")  --> checkboxok közül a checkedeket jelöli ki, ha kihagyom az első szűrőt, akkor az összes checked attribútomost kijelöli, tehát a rádiósokat is
+
+-függvények
+
+	size() : ugyan az mint a length, egyelőre úgy látom
+	length : $("p").length, var tomb = ["egy","kettő"]; tomb.length
+	get(),get(index) --> index egy szám, $('li').get(2) --> második li objektum
+	find() : $("ul").find("li.b").css("border","1px"); -->megkeresi az ul elemen bellül az li.b elemeket
+	each() : $("p").each(function(){
+		$(this).css...
+		if(this).....
+	})  ---> ugyan az mint a php-ban a foreach
+
+pl:
+IKON beszúrása
+$("a[href$=.pdf]").after("img src=''"); ---> href atribútumot kijelölöm a hivatkozásokban és ami .pdf-re végződik az attribútúm értékeb bellül, az mögé berakok egy képet
+
+
+Taratlom manipulálása
+----------------------
+html()               --> vissza adja a tartalmat tagestűl mindenestűl <li class="a">valami</li> ezt mind
+html(új taratlom)    --> beállíthatunk új elemet, felülírjuk
+
+pl.:var newitem = $('<li>asadadada</li>'); $('#valami').html(newitem.html());
+
+text()               --> kijelölt elem tartalmát, textes tartalmát pl.: <li>valami</li> valamit adja vissza
+text(asaka)		     --> tartalmat felülírunk
+
+wrap(),wrapAll()     --> becsomagolás, pl: $("p").wrapAll("<div style="border:3px">");
+
+empty()              -->kiürítés, tartalom törlés
+
+Tartalom beszúrása
+-------------------
+Ha id-t adok meg szelektornak vagy pl.: ul, akkor új elemet is addhatok hozzá, ha általános elemet pl. p-t akkor taratlomra koncentrál és minden elemen bellül hozzá fűzi azt
+append()            --> taratlom beszúrása a végére pl.: $('#lista').append('<li>asadada</li>');
+prepend()           --> ugyan az, csak előre rakja
+
+appendTo()          --> áthelyezésre vagy új elem meghatározott helyre törté beszűrásához is használhatom: $("#lista li:last").appendTo("#lista li:first") vagy $("<li>asa</li>").appendTo("#lista li:first"); 
+prependTo()         --> valami elé rakni, vagy áthelyezni, appendTo-hoz hasonlóan működik
+
+
+Attribútumok manipulálása
+--------------------------
+attr(name);          --> $("a").attr("target","_blank"); --> hozzá adás
+több atttribútum hozzáadása objektummal:
+$("a").attr({target: "_blank", href: "www.vas.hu"});
+removeAttr(name)	 --> $("a").removeAttr("target");
+
+
+css manipulálás 
+---------------
+- GETTER. adott css attripútum érték lekérése: $(<selector>).css('color'); --> megkapom az értéket
+
+-SETTER: $(<selector>).css('color','red')
+
+$(<selector>).css({
+		'color' : 'red',
+		'background-color' : 'rgb(255,255,255)'
+});
+
+addClass() --> $(<selector>).addClass("className");
+removeClass() --||--
+
+események
+---------
+1.
+	var toggleStyle = function() {
+	
+	}
+	$('#gomb').click(togleStyle);
+
+2.
+   <selector>.click(function(){
+
+  });
+
+HOVER
+.........
+
+$('.navigating > li').hover(function(){   ---> 2 függvény szükséges benne: 1.amikor fölötte van az egér, 2. amikor elhaggya az egér az elemet
+	$(this).addClass("kinyilosMenupont");
+}, function(){
+	$(this).removeClass("kinyilosMenupont");
+});
+
+Egér események
+***************
+- click
+- dblclick
+- mouseup és mousedown
+- mouseover | mouseout,  mouseenter | mouseleave
+- mousemove
+
+ JQUERYBEN AZ .on  HASZNÁLJUK, MÍG JS-BEN A getEventListenert
+   <selector>.on('esemeny','all elemek pl.: li',function(event){
+   		//esemeny
+   })
+
+
+ pl.:
+ 
+	 1. $('.menu').on('click','li',function(){
+	 		$(this).addClass('zold');
+	 });  
+
+	 $('.menu').on('dblclick','li',function(){
+	 		$(this).addClass('piros');
+	 }); 
+
+
+	 MULTI ESEMÉNY FIGYELŐ:
+
+	 $('.menu').on({
+	 	click : function(){
+	 		$(this).addClass('zold');
+	 	},
+	 	dblclick : function(){
+	 		$(this).addClass('kek');
+	 	}
+	 }, "li")
+
+
+Billentyűzet esemény
+********************
+- keyup   (lenyom)
+- keydown  (felenged) hasonló mint a keypress
+- billentyűleütés (keypress)
+
+<selector>.keyup(function(evt){
+	
+});
+
+
+pl.:
+
+keyup : function(evn) {
+            
+            if (evn.keyCode === 13) {        //13 == enter
+                $('.down').slideDown(2000);
+            }
+        }
+
+Form események
+***************
+-focus  (amelyik mezőben dolgozunk, cselekményt hajtunk végre)
+-select (kijelöléskor aktiválódik, kiválasztáskor)
+-blur  (üres is számít, mmagyarán, ha elhagyjuk a form elemet)
+-change (változtatjuk az értékét, üres nem számít)
+
+
+
+
+FOR,EACH
+---------
+
+Tömbök bejárása mehet forral, ekkor a lenght segéd fügvényt használhatom. Vagy használhatom az EACH-ot 2 féle képpen:
+ 	a, Amikor szimplán ki akarom iratni az elemeket, egy globális tömbből akkor:
+	 	$.each(tombNeve, function(index, element){
+	 		$(.amibe ki akarom iratni).append('<li> tömb elem egy:'+ element.title +" "+element.data);
+	 	})
+
+	 	var fruit = [
+                 { nev :"alma",   db : 22},
+                 { nev :"körte",  db : 12},
+                 { nev :"banán",  db : 1},
+                 { nev :"lófasz", db : 0}
+             ];
+    
+	    $.each(fruit, function(index, element){
+	       $('.gyumolcs').append("<li>" + (index+1) + "." + element.nev + "(" + element.db + ")</li>"); 
+	    });
+
+	b, Amikor akarok is csinálni valamit az elemmel (DOM, html elemmel), mondjuk az elem a Tag:
+		$('.fruits > li').each( function(index, element){
+			$(element).css('background', 'yellow');
+		})
+
+		$('#bor_nev > option').each( function(index, element){
+	       $(element).attr('selected','selected');
+	    });
+
+

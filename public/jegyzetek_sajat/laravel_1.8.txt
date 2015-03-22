@@ -1,0 +1,968 @@
+
+Laravel:
+-------------
+
+  - ingyenes, nyílt forráskódú, PHP MVC keretrendszer,
+  - Taylor Otwell fejlesztette
+  - 2012 Februárjában jelent meg
+  - 4.2.8 2014.augusztus
+
+  - Eloquent ORM (Object Relation Mapping)
+    migrációk, adatbázis managelés
+
+
+  - composer install;
+  - laravel install composeren keresztül:
+    composer create-project laravel/laravel=4.2.0 [ahova akarom feltenni] --prefer-dist
+
+    LINUXON: sudo chmod -R 755 app/storage        <--  olvasási/írási jog
+
+  - cd laravel
+  - php artisan serve     --> start laravel server
+   (Az Artisan a Laravel beépített konzolos fejlesztői eszköze, aminek további lehetőségeit a php artisan parancs futtatásával érhetjük el.)
+
+  - composer dump-autoload                ------> autóload újratöltése, pl, mappákkal, útvonalakkla variálás esetén, vagy composer update
+
+
+  Új mappa hozzáadása az autoloadba
+  =================================
+  0.Új mappa létrehozása: helper, ebben egy helper osztállyal, benne a meghívandó közös metódusok
+  1.új mappa hozzáadása az autoloadhoz: app/start/global.php 
+  3. ClassLoader::addDirectories + felvenni a mappa nevét
+  4. meghívható már simán
+
+
+   NYELV MÓDOSÍTÁS (validációknál)
+   ...............................
+
+     https://github.com/caouecs/Laravel4-lang
+
+     1. composer.json -ban felvenni a megadott útvonalat a require-be
+     2. composer update
+     3. app.php-ban átírni a nyelvet hu-ra
+     4. vendorból átmásolni a lang mappába a hu mappát
+     5. attribútomok magyarítását nekem kell átírni a validation.php file végén levő tömbben
+
+
+ GENERÁTOROK
+ - -- ---- --- ---
+
+
+  model,view, controller, seed..
+  Nagyvonalakban: (részletesen le van írva githubban)
+  0.packagelist->generators->githubrol: JeffreyWay/Laravel-4-Generators
+  1.kimásolom a stringet, az instaláláshoz
+  2.bemásolom a projekt composer.json require tömbjébe
+  3.parancssorból composer update
+  4.bemásolom az következő stringet az app.php-ba ('Way\Generators\GeneratorsServiceProvider')ú
+
+  Használat:
+   php artisan generate:model Post
+                        view
+                        controller
+                        migration create_tables  --fields="string"
+                        pivot tabla1 tabla2                                         --->  kapcsolótábla generálása (id,category_id, user_id, created_at, updated_at)
+                        ...
+
+
+________________________________________________________________________________________________________________________________________________
+Routing:
+================================================================================================================================================
+
+
+    paraméterekkel : Route('posts/{id}', array('as' => 'post', 'uses' => 'PostController@getIndex'))->where('id', '[1-9][0-9]*');
+                            ----------                  -----   -----------------------------------               -------------
+                                /                         /                         /                                 /
+                           URL útvonal          erre hivatkozunk        ezt a metódust hívja            ahol az id-re szűröt szabunk:
+                                                                                                         pl.: 12 -lehet
+    redirect::to('url')
+    
+
+    REDIRECT & FLESH MESAG   (controller)
+    ======================
+
+    Redirect::to(lofasz/valami)->with('messaage','Hiba van az oldalon')     --> flesh message
+      Redirect::route('lofasz.valami')->withMessage('Hiba van az oldalon')
+
+                                      ->withErrors($validator)
+
+                                      ->withInput(Input::except('password', 'password_confirm'));
+    Megjelenítés:
+    .............
+
+     Message:
+      @if (Session::has('message'))
+
+          {{ Session::get('message') }}
+
+     Errors:
+          @if ($errors->has())
+              <div class="alert alert-danger">
+                  @foreach ($errors->all() as $error)
+                      {{ $error }}<br>        
+                  @endforeach
+              </div>
+          @endif
+
+
+          Soronként:
+            @if ($errors->has('password_confirm')) <p class="help-block">{{ $errors->first('password_confirm') }}</p> @endif
+
+      Régi input:
+
+           value="{{ Input::old('name') }}
+
+
+    Route::resource('user', 'UserController');
+
+    || php artisan routes  ||-el lekérdezhetem, hogy mi mindent figyel a létrehozott útvonalak
+  
+
+    Testre szabás, útvonal kizárása:
+    ................................
+
+
+        Route::resource('user', 'UserController', array('except' => array('show')));
+                        ------   -------------           ------            ----      
+                          \            \                    \                \
+                          url     kontroller              kivétel           action
+
+
+         Testre szabás, csak a következő útvonalak legyenek elérhetőek:
+              Route::resource('user', 'UserController', array('only' => array('create','update','destroy'))); 
+
+
+
+      Filters
+      ........
+
+      	filters.php file-ban babrálunk, saját filter írás
+      	before, after filterek, prefix
+
+        pl.: 'prefix' => 'admin'    ===>  útvonal nevéhez hozzá bassz az admin-t (admin mappa) admin.posts.index
+        - composer dump-autoload                ------> autóload újratöltése, pl, mappákkal, útvonalakkla variálás esetén
+
+        statikus bemenetes szűrők
+        - groupingal nem kell minden egyes routba bele baszni az ellenőrző szűrőket, hanem csak létrehozok egy groupot 1szer és abba rakom a szűrőre vonatkozó útvonalakat
+      pl.:
+       Route::group(array('before' => 'auth'), function(){
+         Route::...
+         Route::...
+         Route::...
+         Route::...
+       });
+
+       Grouppal pl az admin oldalakat is le tudjuk szűrni!!
+
+
+__________________________________________________________________________________________________________________________
+|URL MANAGELÉS 
+###########################################################################################################################
+
+ÁTIRÁNYÍTÁSOK
+..............
+
+      Redirect::back()->withInput()->withErrors($valid)
+      ---------------                          --------
+            \                                     \
+      átirányítás visszavonása                  validátor obj.
+      ahonnan jött a kérés 
+
+
+      Redirect::route('posts.index')
+
+LINK
+....
+    
+
+    link_to_route('posts.edit', $post->title, array($post->id))
+                   -----------   -----------   ---------------
+                      \            \                \
+              Kontroller/action   link szövege     csatolt id
+
+    VAGY
+
+    <a href="{{URL::route('order.index')}}">Rendelések </a></li>
+
+
+Ellenőrzés:
+...........
+
+    Request::is('order*')      
+
+__________________________________________________________________________________________________________________________________
+CONTROLLER
+###################################################################################################################################
+
+1(a). php artisan controller:make UserController
+
+ vagy ha van generate csomagom akkor
+
+1(b). php artisan generate:controller UserController
+
+  -ezzel létre hozza üresen a legfontosabb vázat metódusokkal
+  pl: index, create,show ...
+
+  ezekhez útvonal generálása, kezelése:
+  -------------------------------------
+    Route::resource('user', 'UserController');
+
+    (php artisan routes-el lekérdezhetem, hogy mi mindent figyel a létrehozott útvonalak)
+  
+    Testre szabás, útvonal kizárása:
+      Route::resource('user', 'UserController', array('except' => array('show')));
+
+    Testre szabás, csak a következő útvonalak legyenek elérhetőek:
+      Route::resource('user', 'UserController', array('only' => array('create','update','destroy')));    
+
+
+	
+   1. rout-hoz fel kell venni az útvonalat az actionhoz:
+    Route::get('/', 'AboutController@actionName');
+
+   2. paraméteres rootolás:
+    Route::get('about/{parameter}', 'AboutController@actionName');
+    arra kell figyelni, hogy az action metódus várjon paramétert! 
+
+
+    UPDATEnél:
+    ----------
+      Ha van hasonlító feltétel: $user = User::where('id','=',Auth::user()->id)->firstOrFail();
+      ha csak id: $user = User::findOrFail($id);
+
+    Törlésnél:
+    ----------
+      User::findOrFail($id)->delete();
+
+_______________________________________________________________________________________________________________________________________
+MODEL
+########################################################################################################################################
+
+Ajánlott definiálni a következőket:
+  1. use SoftDeleteTrait                           --- ha van az adatbázisban soft delete (deleted_at) mező
+  2. protected $fillable = [];                     --- beszúrandó mezők
+  3. protected $guarded = [];                      --- nem szükséges kitölteni, beszúrni mezők értékkel (kivételek)
+  4. protected $table = 'tábla neve';
+  5. public $timestamps = false;                   --- ha nem használok timestamps mezőket
+  6. public static $rules = [];                    --- validáláshoz szabályok
+  7. kapcsolatok                                   --- hasMany, belongsTo, belongsToMany
+
+
+  !!  Hibakereséshez:  lekérdezés kiiratása: dd( DB::getQueryLog() );
+
+
+  7. KAPCSOLATOK
+
+     a, deklarálása:
+        ------------
+
+        public function posts()
+        {
+          return ...
+        } 
+
+         egy  a  többhöz
+         ---------------
+          egyik oldal (User):
+            return $this->hasMany('model neve');
+          másik oldal (Post):
+            return $this->belongsTo('User');
+
+
+          egy az egyhez
+          -------------
+            return $this->hasOne();
+
+
+
+          több a többhöz
+          --------------
+          Konvenció: több a többhöz kapcsolatnál kell kapcsoló tábla, kapcsolótábla neve: tabla1_tabla2  egyes számokban pl: category_user
+                     (id,category_id, user_id, created_at, updated_at) ezek a mezők kellenek, generálhatóak is gyorsan ezek a generate-val
+          egyik oldal(User):
+            return $this->belongsToMeny('Category');
+          másik oldal(Category):
+            return $this->belongsToMeny('User');
+
+
+
+       b, használata:
+          -----------
+          Simán hivatkozok a metódusra modell osztályon keresztül:
+          Ha több van - pl.: egy a több kapcsolatnál - akkor a foreachben ($user->posts as $post) vagyis a posts a létrehozott kapcsoalt metódus, majd a cikluson  bellül simán hivatkozok a kapcsolaton keresztül a kapcsolt tábla mezőire, pl.: $post->title
+          Ha egy van, akkor, akkor a cikluson bellül hivatkozhatok a kapcsolatra, majd a mezőre: $post->user->email
+
+          eager loading: Ne keljen több tíz, több száz lekérdezést lefuttatni használjuk a with() metódust a kontrollerbne:
+          ..............
+
+            $posts = Post::with('user')->get() ahola  user a Post modelben létrehozott kapcsolat neve
+            $user = User::with('categories')->find($id) ahola  categories a User modelben létrehozott kapcsolat neve
+
+     __________
+  |---Adatbázis---| .........................................................................
+     __________
+
+
+   beállítások az app/config/database
+
+
+   Titkosítás, pl jelszó mező titkosítása:
+   Hash::make('password');
+
+    Táblák manipulálása
+    ===================
+
+    Schema osztályon keresztül.
+
+      LÉTREHOZÁS:
+        Schema::create('tablaNeve', function($newtable){
+          $newtable->increments('id'); // autó inkrement mező
+          $newtable->tipusnév('oszlopneve', hossz);
+          egyedihez még hozzá kell csapni ->unique() tagot, pl emailhez
+          ...
+        });   
+
+      FRISSÍTÉS:
+        Schema::table('tablaneve', function($newcolumn){
+          $newcolumn->dropColumn('nickname');
+        });  
+
+      SOR TÖRLÉS
+        Schema::table('users', function($table)
+        {
+          $table->dropColumn('votes');
+        });  
+
+      TÖRLÉS:
+        Tábla: Schema::dropIfExisty('táblaneve');
+
+    MIGRÁCIÓK
+    =========
+    Ha többen dolgozunk egy projekten, akkor az adatbázis módosítások végrehajtásához csa a migrációs filet kell elkérni. Gyaorlatilag egy parancs alapján adatbázis utasításokat tudunk végre hajtani. Első migráció végrehajtásakor létre jön egy migrations tábla amiben a létrejött migrációs fileokat könyveli a laravel. Ez alapján látja, hogy mi hajtódott már végre és mi nem. Ha vissza vonunk egy migrációt vagy az egésszet töröljük, akkor a könyvelés innen, a táblából kikerül.
+
+    0.Prancssorból:be kell lépni a laravel mappába
+    1.php artisan migrate:make create-pizza_delivery
+    2.Migráciü a database/migrations mappába kerül, osztályon bellül az up()metódusba hozzu létre a nigrációt, down() vonhatjuk vissza
+    3.Futtatás: php artisan migrate
+      Visszavonás/törlés: php artisan migrate:rollback 
+
+      tagok:
+      ......
+
+      Idegenkulcs:
+
+        1. először létrehozom ineger-ként a kulcsot
+        2. majd létrehozoma referenciát:
+              $table->integer('customer_id')->unsigned();
+              $table->foreign('customer_id')->references('id')->on('customers');
+
+
+
+        decimal('nev', 6, 2);
+                 --   -- --
+                /     |   \
+      mező neve     milyen  tizedes jegy
+                    hosszu
+
+        boolean('igaz')->default(1)
+
+        DB Seeder
+        ---------
+
+        Adatok (rekordok) feltöltése adatbázisba.
+
+        1. Használat: leggyorsabb az, ha generátorral hozom létre az új filet: php artisan generate:seed posts. Ezzel az utasítással létrejön egy új seed osztály és a databaseseeder állományban is regisztrálódik.
+        Be van húzva a Faker osztály is azt is beregisztrálja az új php osztályba.
+        2. Futtatás: php artisan db:seed
+        3. visszavonása: php artisan migrate:refresh --seed
+
+
+    SOROK MENTÉSE
+    =============
+
+    Modelben létrehozok egy fájlt,osztályt a táblának.
+    Majd valahol példányosítom, meghívom a tagokat $new->first_name és értéket adok neki, végül $new->save();
+
+    vagy egybe  Users::create(array('mezőneve'=>'érték',stb));
+
+    Seeder: több sor lefuttatása ........, teszt adatok beszúrása fakerrel
+    0.parancssorból composer require fzaninotto/faker
+    1.database/seeds/DatabaseSeeder.php-ban behívom az új seedert
+    2.új seeder file létrehozása: részletek doksiban, videóban
+    3.php artisan db:seed
+
+    LEKÉRDEZÉSEK
+    ============
+
+    Adatok elérése:
+    0.Model létrehozása  
+    1.példányosítom a modelt
+    2.$példány->oszlop   érem el az adatot
+
+    Metódusok:
+      find(id)  --> keresés
+      save()    --> mentés
+      all()     --> összes megkeresése
+      where('mező','műveleti jel','érték')->get(); 
+
+      Qvery builder
+      --------------
+      DB::table('users')->get();   ==> all user
+
+      !!  Hibakereséshez:  lekérdezés kiiratása: dd( DB::getQueryLog() );
+
+      DB::table('users')->where('id',1)  ==> ahol az id = 1-el azokat a sorokat irassa ki
+                ->find($id)
+      Ha a végére csapjuk a wherenek ->first() akkor az első oszlopot adja csak vissza
+
+      TÖBB FELTÉTELLEL: where(array('email' => 'valami', 'id' => 5))
+
+      VAGY  where('id',1)->orWhere('id', 5)->get()
+      DARABSZÁm  ->count()
+      RENDEZÉS   ->orderBy('email')
+      LIMIT      ->orderBy('email')->take(2)
+      JOIN     ->DB::table('users')->join('posts', 'users.id', '=', 'posts.user_id')->get();
+      INSERT     ->DB::table('users')->insert($data)
+      update     ->DB::table('users')->where('id', 6)->update()
+      delete   ->                  ->delete()
+
+
+ 
+
+      Eloguent
+      ---------
+
+      Post::all(),
+      Post::where('title', 'LIKE', '%post%')->get()
+      LIMIT   ->take(3)
+      KIMARAD  ->skip(1)
+
+      POSTból mentés: Order::create($data)
+
+      Beszúráskor, esetleg id-t ki kell hagyni vagy más mezőt:   ekkor a modell osztályban aófell kell venni a beszúrandó mezőket: protected $fillable = ['title', 'body', 'user_id'];
+      VAGY kihagyni mezőket: protected $guarded = ['user_id'];
+
+      BESZÚRT id lekérdezése: $insertedId = $user->id;
+
+      Néha érdemes menteni nem csak egy modell, hanem annak minden kapcsolatot. Ehhez használhatod a push módszer: $user->push();
+
+
+      Relációk:   F:\__programozás__\Laravel\Teamtreehouse Laravel Basics\8
+
+
+
+      Query builder:
+      --------------
+
+      $ret = $query->orderBy('categories.id')->get(array('categories.id as categId',        //nevesített oszlop nevek a get-ben, ha csak korlátozott oszlopokat akarok lekérni
+                                 'categories.title as categTitle',
+                                 'user_category.user_id as userId')
+                     )->toArray();                                                          //alapeswetben objektumot ad vissza, így átnyomható tömbbé
+
+
+
+___________________________________________________________________________________________________________________________________
+VIEW
+###################################################################################################################################
+
+View::make('View neve');
+View::make('index',array('data' => $data))  == View::make('index',compact('data')). Vagyis ugyan az lesz a változó neve mint amit behúzok a compact-ba
+
+Str::limit()    ---> hosszú nevek kiiratásánál limitálható a megjelenítendő karakter szám
+
+
+  LINKELÉS
+  .........
+
+
+    asset(); --> ezzel szúrtunk be css-t a href="" között, útvonalakat rövidítünk
+    pl.: href="{{ URL::asset('css/main.css') }}" ezzel gondolom
+    VAGY
+    {{ HTML::style('css/admin.css') }}
+
+    
+
+
+  REDIRECT & FLESH MESAG   (controller)
+    ======================
+
+    Redirect::to(lofasz/valami)->with('messaage','Hiba van az oldalon')     --> flesh message
+      Redirect::route('lofasz.valami')->withMessage('Hiba van az oldalon')
+
+                                      ->withErrors($validator)
+
+                                      ->withInput(Input::except('password', 'password_confirm'));
+            Megjelenítés:
+            .............
+
+             Message:
+              @if (Session::has('message'))
+
+                  {{ Session::get('message') }}
+
+             Errors:
+                  @if ($errors->has())
+                      <div class="alert alert-danger">
+                          @foreach ($errors->all() as $error)
+                              {{ $error }}<br>        
+                          @endforeach
+                      </div>
+                  @endif
+
+
+                  Soronként:
+                    @if ($errors->has('password_confirm')) <p class="help-block">{{ $errors->first('password_confirm') }}</p> @endif
+
+              Régi input:
+
+                   value="{{ Input::old('name') }}
+    
+
+    Kapcsolt tábla mezőinek megjelenítése (több  a  többhöz)
+    ---------------------------------------------------------
+
+   @foreach($user->categories as $cat)
+    <li> {{{$cat->name}}} </li>
+
+
+
+
+    Blade (template kezelő)
+    =======================
+
+    - template file készítés: pelda.blade.php
+    - {{  }}   =  <?php echo "..." ?>
+    - {{{  }}} =  <?php echo '...' ?>   maygarán ez nem értékeli ki a változókat, kódokat
+    - változók :  {{ $result }}
+    - PHP függvények: {{ substring($string,3) }}
+    - általam készített fgv.: {{ link_to('directions') }}
+    - elágazás,cilus szintaxis: 
+        @for ;
+        @foreach.. @endforeach; 
+        @if..@elseif...@else..@endif; 
+             @unless(feltétel) feltétel tartalmának kizárása, vagyis a feltétel zartalma nem lessz 
+             @endunless
+    - külső file behúzása: pl.: partial-t @include()
+    - Fő Layout helye: apps/views/layouts
+       ebben használjuk a @yield('body')
+   
+
+
+    Partial
+    .......
+
+    többször felhasznált műveletek, elemek, egyszeri megírása egy file-ban majd azok be @include('mappa.partilas-mappa.valami-->(php file neve)')
+
+    pl.: views/backend/partials
+                  message.blade.php
+
+    Layout
+    .......
+
+    - layout elhelyezése a views mappán bellül.
+    - @yield('body') --> hivatkozás, amit deklarálni kell az all fileokban a  @section('body').....@stop között
+    - @extends('hivatkozott-mappa.hivatkozott-layout vagy view')
+
+
+
+    Form
+    .....
+
+    - nyitó tag :
+
+                 1.  {{ Form::open(array('url' => 'thans')) }}
+                 2.  {{ Form::open(array('route' => array('user.update', $user->id))) }}
+
+                     {{ Form::model($user, array('url' => array('users/update', $user->id),'method'=>'put','class'=>'form-horizontal')) }}
+                 3.  {{ Form::model($order, array('route' => array('order.update', $order->id), 'method' => 'put', 'class'=>'form-horizontal')) }}
+                                    ------                          ------------   ----------     ---------------   ------------------------  
+                                      \                                 \             \                 \                   \
+                              kontrollertől kapott változók         routes fileban    lekérdezés      update-nél      bootstrap class
+                                (lekérdezés eredménye)              deklarált azon.    egy mezője     ez kell
+
+    - kontrollert, útvonalat is meg lehet adni, updathez kell az id is, alapértelmezés szerint post-al mennek az űrlapok 
+    - záró tag:  {{ Form::close() }}
+
+     Elemek:
+                Form::email('email',null,'array('class'=>'form-control'))
+                            ------- ----  ----------------------------
+                              \       \                   \
+                       mező neve,    alapérték      html, css tulajok
+                       datbázisban oszlop név
+
+        label  =>  Form::label('for','szoveg')
+        text   =>  Form::text('nev','placeholder')
+        select =>  Form::select('nev', array(
+                  'option1 value' => 'text',
+                  'option2 value' => 'text',))
+      pl1:
+      {{ Form::select('pizzadelivery_id', array('default' => '- Kérem válasszon -') + Pizzadelivery::lists('nickname','id'),null, array('class' => 'form-control')) }}
+                                              -----------------------------------------------------------------------------
+                                                    \
+                                                adat, default +-al konkatenálom hozzá a tényleges elemeket név(adatb. mező)-érték 
+
+      pl2.:
+      {{Form::select('menuitems[]',Menuitem::lists('name','id'),null,array('class' => 'form-control','multiple'=>'multiple'))}}
+                                                                                                                    
+        checkbox => Form::checkbox('nev','ertek',false(nincs bebipálva))
+        gomb     => Form::submit('szoveg')
+
+
+          Validálás
+          .........
+
+
+
+          UPDATE-NÉL CSINÁLHATOM AZT IS ESETLEG, HOGY KÜLÖN VALIDÁLÓ TÖMBÖT HOZOK NEKI LÉTRE, PL KÉP FELTÖLTÉS KÖTELEZŐ-NEM KÖTELEZŐ FASZSÁG MIATT
+
+
+
+           1. Deklarálni kell a modellene bellül a szabályokat: 
+              protected $rules = [...];
+
+              pl:    'email'      => array('required','unique'=>'unique:customers'),
+
+                        email :   array('required','unique'=>'unique:customers'),
+                        telefon:  array('required','regex:/^\d{2}[\-]\d{3}[\-]\d{4}$/')
+                        irányító: array('required','integer','digits:4'),
+                                                    -------   ---------  
+                                                      \           \
+                                                    szám      4 karakter hosszú (6200)
+
+                        dátum:       'term' => 'date_format:Y.m.d H:i',
+                        kép:         "image" => array('required','image','mimes:jpeg,jpg,bmp,png,gif'),
+                        jelszó:       'password'   => 'required|alpha_num|between:8,12|confirmed'
+                                                                --------- ------------ ---------
+                                                                  /             |           \
+                                                         betűk és számok   8 és 12 karakter   ellenőrzés
+
+                                      'password_confirmation'=> 'required|alpha_num|between:8,12',
+                                      
+                        kivételek:   "type"  => array('not_in:default'),
+                        minimum vizsgálat    ...       min:6
+
+            EGYEDI KEZELÉSE UPDATE-nél
+
+                          Model  Rules:
+                             1.b       'username'   => array('required','min:6','unique'=>'unique:users,username'),  
+                                                                                 ------    ------- ---   ------
+                                                                                   \           \    \      \
+                                                                             azonosító        egyedi  tábla  mező
+                                                                  hogy tudjak rá hivatkozni
+                                                                        /
+                             1.b     Kontrollerben:         $rules = User::$rules;
+                                                 $rules['username']['unique'] = 'unique:users,username,' . $id;                        
+                                                        ---------    -------     ---------------------     --- 
+                                                          \             \               \                    \ 
+                                                rules kulcs          azonosító          ez a konvenció     azonosító
+                                                                     rules értéken
+                                                                     bellül   
+
+
+           2. Vlidátor osztály-t kell meghívni:
+
+             $validator = Validator::make(Input::all(), Osztály::$rules);
+                                            ------------- ---------------
+                                             \                 \
+                                  validálni kívánt adat     szabályok a $rules tömbben
+
+             $validator->fails()       --> ellenőrzésben, hogy van-e hiba
+
+           3. Redirekt a hibákkal
+           4. View-ban:
+               $errors->first('mező neve')
+               $errors->first('username','<p class="text-warning">:message</p>') }}         
+                                                                   ---------
+                                                                     \
+                                                                  konvenció     
+
+              * Validáló hibaüzenetek össze vonása(pl, rule1 és rule2)
+
+                $errors = $valid_categories->messages()->merge($valid->messages());
+        
+                return Redirect::back()
+                  ->withInput()
+                  ->withErrors($errors);   
+
+           
+            VALIDÁLÁSKOR FELMERÜLŐ HIBÁK MEGJELENÍTÉSE EGYBEN A VIEW-BAN
+            ----------------------------------------------
+
+                 Errors:
+                      @if ($errors->has())
+                          <div class="alert alert-danger">
+                              @foreach ($errors->all() as $error)
+                                  {{ $error }}<br>        
+                              @endforeach
+                          </div>
+                      @endif
+
+
+
+_____________________________________________________________________________________________________________________________________________
+RECEPTEK:
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+Beléptetés
+==========
+
+    0. A beépített autentikáció alapesetben a Users táblát keresi, azon bellül is konvenciókkal a mezőket. Ha konfigolni akarom ezt, akkor a config/auth.php-t kell megnyitni és szerkeszteni
+
+    1. Routs.php -ban Route::gropp(array('before' => 'auth'), function(){
+      Route:resource('posts', 'LófaszController');
+      ....
+       } );
+
+       vagy 
+
+       Route::gropp(array('before' => 'auth.basic'), function(){
+       ...
+       });
+
+      2. filters.php -ban, ha kell, akkor át kell írni az auth szűrőt pl.: return Redirect::quest('admin/login');
+      3. létre kell hozni a Routoknál egy újabb group-ot szűrő nélkül amiben lesznek a getLogin, postLogin, getLogout metódusokra hívatkozó routok, ezeknek egy AuthControllert + belépéshez rullokat a user modelben + belépés formot
+
+      AuthControlleren bellül
+
+      ...
+
+      public function postLogin()
+      {
+        ...
+        //beléptetés
+        if (Auth::attempt(array('username' => Input::get('username'), 'password' => Input::get('password')))){
+                  return Redirect::intended('order');
+           }
+
+        ...
+      }
+
+      public function getLogout(){
+        Auth::logout();
+
+        return Redirect::route('login');
+      }
+
+    4 ellenőrzés: 
+       @if(!Auth::check()) ...
+
+
+MENÜ
+=========
+
+<li {{{ (Request::is('order*') ? 'class=active' : '') }}}><a href="{{URL::route('order.index')}}">Rendelések </a></li>
+
+RememberMe
+==========
+0.Létre kell hozni a migrációban egy $table->rememberToken()
+1.config/session.php - ben 'expire_on_close' => true,-ha azt akarjuk, hogy elvesszen a session tartalma azonnal, ha be van zárva az oldal
+2.ahol vizsgálom a belépést + 1 paraméterbe be kell tenni ezt: (Input::get('remember')==1 ? true : false)
+3. ahol a remember az input chehckbox mező neve
+
+
+
+Visszakérdezős törlés gomb javascriptel
+====================================
+F:\__programozás__\Laravel\Teamtreehouse Laravel Basics\7 Continuing CRUD
+
+
+
+Képfeltöltés:
+=============
+
+  
+  Form: {{ Form::open(array('route' => array('users.register'), 'files'=>true, 'class'=>'form-horizontal')) }}
+        .... 
+        {{ Form::file('img_path') }} 
+        ...
+  Controller:
+        $destinationPath = public_path().'/img/profil'; // upload path
+        
+        $extension = Input::file('img_path')->getClientOriginalExtension(); // getting image extension
+        $fileName = time().'.'.$extension; // renameing image
+        Input::file('img_path')->move($destinationPath, $fileName); //
+        
+        $data['img_path'] = 'img/products/' . $fileName;      
+
+
+
+Multi File feltöltés:
+======================
+
+            if(Input::file('documents'))
+            {   
+                $files = Input::file('documents');
+                $this->uploadPersonalDocuments($files);
+            }
+
+
+     public function uploadPersonalDocuments($files)
+    {
+        foreach($files as $file) {
+          // validating each file.
+          $rules = array(
+                  'file' => 'required',
+                            'mimes:jpeg,jpg,bmp,png,gif'   
+                 ); 
+          $validator = Validator::make(array('file'=> $file), $rules);
+          if($validator->passes()){
+            $savePath = public_path().'/img/model_personal_documents/';
+            $filename = $file->getClientOriginalName(); 
+            $fileName = Auth::user()->user_id.'.'.$filename; // renameing image
+            $file->move($savePath, $fileName);
+          } 
+          else {
+            // redirect back with errors.
+            return Redirect::back()->withInput()->withErrors($validator);
+          }
+        } 
+    }
+
+
+  Prewjú picture
+  ===============
+
+    <div style="width:100px; height:100px">
+        <img id="prew" src="#"  alt="" />
+    </div>
+
+    <script type="text/javascript">
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            
+            reader.onload = function (e) {
+                $('#prew').attr('src', e.target.result);
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    $("#img_path").change(function(){
+        readURL(this);
+    });
+    </script>
+
+
+    Shoping Cart & PayPall
+    ======================
+    ToDo: D:\03. Payments and Wrapping Up - Tutsplus build an ecommerce app
+
+
+
+  LAPOZÁS
+  ========
+
+  Lapozó kunfigurálása (megjelenítés a gombok, számok stb) a config\view  -ban
+  'pagination' => 'pagination::simple',     <<előző következő>>
+  'pagination' => 'pagination::slider-3',    számokkal is
+
+
+  1. Model-ben lekérdezzük az elérhető rekordokat, vagy simán mindet aztán rárakjuk a lapozót az értékekkel
+
+     return self::where('availability', '=', 1)->orderBy('price', 'DESC')->paginate(4);
+
+      Ha join is van és vannak a táblákban eggyező nevek, akkor egy tömben meg kell adni pontosan az értékeket pl.:
+      ->paginate(4, array('users.name as user_name', categories.name as cat_name))      
+
+  2. Controllerben meghívom/deklarálom ezt a lekérdezést   
+
+     User::getReady() vagy User::paginate(10), ha conrollerben kérdezem le
+
+  3. View-ban:
+  
+    a felsorolás után egy külön blokkban, foreach után:
+    {{ $menuitems->links() }} ez a lapozó   
+
+    TÖBB OLDAL ESETÉN AZ A ROHADÉK ELFELEJTI A PARAMÉTEREKET ÍGY KÜLÖN MÉG HOZZÁ KELL ADNI EGY METÓDUST, BENNE A LAPOZANDÓ PARAMÉTEREKKEL:
+    {{ $menuitems->appends(array('availability' =>Input::get('availability')))->links(); }}
+
+
+  DINAMIKUS VALIDÁLÁS
+  ====================
+
+  MODEL:
+
+         public static function getCategoryRules($types)         //típusok amiket validálni akarok
+       {
+        $newMessages = [];
+        $newRules    = [];
+
+        foreach ($types as $type)
+        {
+            $message = [
+                $type['id'].".required" => "Please choose " . $type['title'] . " element(s)",
+            ];
+
+            $newMessages = $newMessages + $message;
+
+            $rule = [
+                $type['id'] => 'required'
+            ];
+
+            $newRules = $newRules + $rule;
+        }
+
+        return [
+                'newRules'    => $newRules,
+                'newMessages' => $newMessages
+              ];
+    }
+
+  CONTROLLER:
+
+         $types = CategoryType::getCategoryTypes();
+        
+        //lekérem a rullokat és hibaüzeneteket
+        $categ = UserCategory::getCategoryRules($types);
+        
+        $valid_categories = Validator::make(Input::all(),$categ['newRules'],$categ['newMessages']);
+
+___________________________________________________________________________________________________________________________
+BEEMELT KOMPONENSEK
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+
+
+Image manipulátor
+=================
+
+leírás: http://image.intervention.io/getting_started/installation#laravel
+github: https://github.com/Intervention/image
+
+Telepítés: 
+0.composer.json required tömbjébe beemelni a megfelelő sort, majd composer update
+1.config/app-ba providers és az aliases tömbökbe  a megfelelő sorokat
+2.modelben image-re validáló rull
+3. Controllerben :
+    store metódusban (létrehozáskor)
+      ...
+      $image = Input::file('image');
+            $filename = time() . '.' . $image->getClientOriginalName();
+            $path = public_path('img/products/' . $filename);
+            Image::make($image->getRealPath())->resize('200','200')->save($path);
+            $item->image = 'img/products/' . $filename;
+            $item->save();
+                                                ----  ---
+                                                  /    \
+                                                width  hight  
+     
+
+   Törlésnél:
+          ... 
+          File::delete('public/' . $product->image);
+          ....
+4. View
+      Megjelenítés:
+          {{ HTML::image($product->image, $product->title, array('width' => '50')) }}
+                          -------------   --------------
+                           /                |
+                       URL                alt
+
+      Létrehozás form-ban:
+       {{ Form::open(array('url' => 'menuitems/createItem', 'files'=>true), 'class' => 'form-horizontal') }}
+       ..
+       {{ Form::file('image') }}  
+       ..                 

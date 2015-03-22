@@ -3,7 +3,7 @@
 class UserController extends \BaseController 
 {
     /**
-     * Felhasználók/alkalmazottak megjelenítése.
+     * Felhasználók/aaaaaalkalmazottak megjelenítése.
      *
      * @return Response
      */
@@ -45,9 +45,8 @@ class UserController extends \BaseController
      * @return Response
      */
     public function store() 
-    { 
+    {
         $valid = Validator::make($data = Input::all(), User::$rules_step1);
-
         if ($valid->fails()) {
             return Redirect::back()
                     ->withErrors($valid)
@@ -69,6 +68,12 @@ class UserController extends \BaseController
         $user->username   = $data['username'];
         $user->img_path   = $data['img_path'];
         
+        $pwd = Input::get('password'); 
+        $hashed_pwd = Hash::make($pwd);
+        $data['password'] = $hashed_pwd;
+        
+        $user->password = $data['password'];
+        
         $user->save();
         
         return Redirect::route('/users/create/step2/{id}',$user->id);
@@ -77,52 +82,64 @@ class UserController extends \BaseController
     
     public function store2()
     {
-        $types = CategoryType::select('id','name')->get()->toArray();
+        //KATEGÓRIÁK MENTÉSÉNEK ELŐKÉSZÍTÉSE
         
-        foreach($types as $type)
-        {
-            if(is_array(Input::get($type['name']))){  //select, azaz tömb
-               foreach(Input::get($type['name']) as $item)
-                {
-                   $model = new UserCategory();
-                   
-                   $model->user_id = Input::get('user_id');
-                   $model->type_id = $type['id'];
-                   $model->category_id = $item;
-                   
-                   $model->save();
-                   
-                }
-            }else{               //radio
-                   $model = new UserCategory();
-                   
-                   $model->user_id = Input::get('user_id');
-                   $model->type_id = $type['id'];
-                   $model->category_id = Input::get($type['name']);
-                   
-                   $model->save();
-            }  
-        }
+        $types = CategoryType::getCategoryTypes();
+        
+        //lekérem a rullokat és hibaüzeneteket
+        $categ = UserCategory::getCategoryRules($types);
+        
+        $valid_categories = Validator::make(Input::all(),$categ['newRules'],$categ['newMessages']);
         
         $valid = Validator::make($data = Input::all(), User::$rules_step2);
 
-        if ($valid->fails()) {
-            return Redirect::back()
-                    ->withErrors($valid)
-                    ->withInput(); //old inputok miatt
+        if ($valid->passes() && $valid_categories->passes()) {
+           
+           //lekérjük a modell már meglévő adatait, hogy tudjuk bővíteni
+           
+           $model = User::where('id','=',Input::get('user_id'))->first(); 
+            
+           $model->os_v_vallalkozas = Input::get('os_v_vallalkozas');
+           $model->vallalkozas_nev  = (Input::get('vallalkozas_nev')) ? Input::get('vallalkozas_nev') : null;
+           $model->update();
+           
+            //kategóriák mentése a modelhez
+            foreach($types as $type)
+            {
+                if(is_array(Input::get($type['id']))){  //select, azaz tömb
+                   foreach(Input::get($type['id']) as $item)
+                    {
+                       $model = new UserCategory();
+
+                       $model->user_id = Input::get('user_id');
+                       $model->type_id = $type['id'];
+                       $model->category_id = $item;
+
+                       $model->save();
+                    }
+                }else{               //radio
+                       $model = new UserCategory();
+
+                       $model->user_id = Input::get('user_id');
+                       $model->type_id = $type['id'];
+                       $model->category_id = Input::get($type['id']);
+
+                       $model->save();
+                }  
+            }
+        
+           return Redirect::route('login')
+                ->with('message','Sikeresen regisztrált');   
         }
         
-        $pwd = Input::get('password'); 
-        $hashed_pwd = Hash::make($pwd);
-        $data['password'] = $hashed_pwd;
         
-        $user = User::find(Input::get('user_id'));
-        $user->password = $data['password'];
+        //user step 2 form validáló és a kategória validáló egybe vonása 
+        $errors = $valid_categories->messages()->merge($valid->messages());
         
-        $user->update();
-        
-         return Redirect::route('login')
-                ->with('message','Sikeresen regisztrált');
+        return Redirect::back()
+                ->withInput()
+                ->withErrors($errors);
+  
     }
 
     
@@ -144,7 +161,7 @@ class UserController extends \BaseController
     }
    
     
-
+    //step1 update/mentés
     public function update($id)
     {
        $model = User::find(Auth::user()->id);
@@ -165,7 +182,8 @@ class UserController extends \BaseController
                     ->withErrors($valid)
                     ->withInput(); //old inputok miatt
         }
-      
+       
+        //Kép mentése
         if(Input::file('img_path'))
         {
             
@@ -182,56 +200,120 @@ class UserController extends \BaseController
          Input::file('img_path')->move($destinationPath, $fileName);
         
          $data['img_path'] = 'img/profil/' . $fileName;
+         $model->img_path = $data['img_path'];
         }
         
         $pwd = Input::get('password'); 
         $hashed_pwd = Hash::make($pwd);
         $data['password'] = $hashed_pwd;
-         
-        
-        $model->update($data);
+        $model->password  = $data['password'];
+        $model->first_name = $data['first_name'];
+        $model->last_name  = $data['last_name'];
+        $model->username   = $data['username'];
+    
+        $model->update();
         
         return Redirect::route('users.edit2');
     }
     
     
+     //step2 update,mentés
     
      public function update2()
     {
        $model = User::find(Auth::user()->id);
-       
+      
        if(!$model){
            return Redirect::back();
        }
        
+       $id = Input::get('user_id');
+      
        $data = Input::all();
+       // dd($data);
        $rules = User::$rules_step2;
        
+       //Kategóriák mentése
+        
+       $types = CategoryType::getCategoryTypes();
+        
+       //lekérem a rullokat és hibaüzeneteket
+       $categ = UserCategory::getCategoryRules($types);
+        
+       //validálom a típusokat
+       $valid_categories = Validator::make($data,$categ['newRules'],$categ['newMessages']);
        
+       //validálom az alap, rögzített adatokat
        $valid = Validator::make($data,$rules);
-       dd($valid->fails());
-        if ($valid->fails()) {
-            return Redirect::back()
-                    ->withErrors($valid)
-                    ->withInput(); //old inputok miatt
+   
+        if ($valid->passes() && $valid_categories->passes()) {    //nincs hiba, akkor mentés
+  
+            $model->os_v_vallalkozas = Input::get('os_v_vallalkozas');
+            $model->vallalkozas_nev  = (Input::get('vallalkozas_nev')) ? Input::get('vallalkozas_nev') : null;
+           
+            $model->update();
+            
+            //kategóriák mentése a modelhez
+            foreach($types as $type)
+            {   
+                if(is_array(Input::get($type['id'])))       //select, azaz tömb
+                {  
+                    $query = UserCategory::where('type_id', '=', $type['id']);
+                    $dbCateg = $query->where('user_id', '=', $id)->get(array('category_id'))->toArray();
+                    $dbCategory = array();
+                    
+                    foreach($dbCateg as $tmp) {
+                        $dbCategory[] = $tmp['category_id'];
+                    }
+                    
+                    $newValue = Input::get($type['id']);
+                    $merge = array_merge($dbCategory, $newValue);
+                     
+                    $needDelete = array_diff($merge,$newValue);
+                    foreach($needDelete as $item){
+                        UserCategory::where('category_id', '=', $item)->delete();
+                    }
+                    
+                    $needInsert = array_diff($merge, $dbCategory);
+                    foreach($needInsert as $item){
+                        UserCategory::insert(
+                                array('user_id' => $id, 'type_id' => $type['id'], 'category_id'=>$item)
+                        );
+                    }
+                }else{                                       //radio 
+                       $categ = UserCategory::where('user_id', '=', $id)
+                                ->where('type_id', '=', $type['id'])->first();
+                       
+                       if(!is_null($categ))
+                       {
+                            $categ->category_id = Input::get($type['id']);
+
+                            $categ->update();
+                       }else{
+                           UserCategory::insert(
+                                array('user_id' => $id, 'type_id' => $type['id'], 'category_id'=>Input::get($type['id']))
+                        );
+                       }
+                }  
+            }
+            return Redirect::to('/');   
         }
-      
         
-        $pwd = Input::get('password'); 
-        $hashed_pwd = Hash::make($pwd);
-        $data['password'] = $hashed_pwd;
-         
-        
-        $model->update($data);
-        
-        return Redirect::route('login')
-                ->with('message','Adatok frissítve lettek');
+         //user step 2 form validáló és a kategória validáló egybe vonása 
+            $errors = $valid_categories->messages()->merge($valid->messages());
+
+            return Redirect::back()
+                    ->withInput()
+                    ->withErrors($errors);   
     }
     
+
     public function getLogin()
     {
         return View::make('users.login');
     }
+    
+    
     
     public function postLogin()
     {

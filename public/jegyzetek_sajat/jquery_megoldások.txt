@@ -1,0 +1,289 @@
+0. Kiválasztások, kijelölések:
+------------------------------
+
+    --input elemek közül a firstName-t akarom KIVÁLASZTANI, akkor: $('input[name="firstName"]')
+
+    --input elemek közül mindegyiket KIVÉVE KIVÁLASZTANI
+    $('input[name != "phone"]')
+
+    --input elemek közül azokat amelyek NEVÉBEN BENNE VAN egy rész kifejezés, pl name:
+    $('input[name] *= "name') --> ezzel kiválasztom azokat amelyek nevében benne van a 'name' 
+
+    --input elemek közül azokat amelyek NEVÉNEK VÉGE egy rész kifejezés, pl Val:
+    $('input[name $= "Val"]')
+
+    --input elemek közül az ELSŐT:
+    $('input:first')
+
+    --input elemek közöl a PÁROSAKAT
+    $('input:even')
+
+    --input elemek közöl a PÁRATLANOKAT
+    $('input:odd')
+
+    --inpuk elemek közül a 3.ELEMET
+    $('input:eq(3)')
+
+    --first-of-type    ----> összes első elemet, bele értve a beágyazott, gyermek elemeket is
+
+    --melyek értékként, tartalomként TARTALMAZNAK SZAVAK a megjelölteket:
+    $('label:contains("gyümölcs")')
+
+    --azokat az elemeket jelöld ki amelyek ÜRESEK
+    $('input:empty')
+
+    --azokat az ELEMEKEN BELLÜL amelyek a következő ELEMEKET(TAG): $('ul:has("li")')
+
+    --ADOTT SORSZÁMÚ ELEMET válazd ki
+    $('ul:nth-child(3)') 
+
+    --GYERMEK ELEM KIVÁLASZTÁSA
+    (<div class="menu"><ul><li></li></ul></div>)
+    $('.menü > ul')
+    vagy
+    $('.menu').children() --> összes gyermek elem
+
+    --SZÜLŐ ELEM KIVÁLASZTÁSA
+    $('.navigation > li:eq(2)').parent()
+
+    --KÖVETKEZŐ TAG KIVÁLASZTÁSA
+    (<div id="logo"></div><div class="navbar"></div>)
+    $('#logo').next().css(....) ---> ekkor a navbar lesz kivlasztva
+
+    --KÖVETKEZŐ ÖSSZES TAG KIVÁLASZTÁSA
+    (<div id="logo"></div><div class="navbar"></div>)
+    $('#logo').nextAll().css(....) ---> ekkor a navbar lesz kivlasztva
+
+1. Radio gomb érték alapján másik mező letiltása
+------------------------------------------------
+
+	$("#kinal").change(function(){
+       if(this.checked){
+          $('#bor_nev').attr("disabled","disabled");
+       }else{
+          $('#bor_nev').removeAttr("disabled"); 
+       }
+    }).trigger('change');
+    
+    $("#keres").change(function(){
+       $('#bor_nev').removeAttr("disabled");
+    });
+
+
+2. Form küldése után a kötelező mezők ellenörzése:
+--------------------------------------------------
+
+form küldés viszgálata:
+
+	$("formom").submit(function(){
+		var abort = false;
+		$("div.error").remove(); //alapértelmezésben törlés, ez akkor jön jól, ha volt hiba és utánna meg akarjuk szüntetni azt mivel lehet hogy ki van már az töltve
+		$(":input[required]").each(function(){
+			if($(this).val() === ""){
+				$(this).after('<div class="error">Ez a mező kitöltése kötelező</div>');
+				abort = true;
+			}
+		});//each
+		if (abort) {return false;} else {return true;}
+	});//on submit
+
+3. Jquery valid submit utánn:
+-----------------------------
+
+	var validObj = {
+        "hatarido": {
+            "name": "Vezetéknév",
+            "pattern": "^[a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]{2,20}$",
+            "message": "Határidő kitöltése kötelező!",
+            "required": true
+        },
+        "mennyiseg": {
+            "name": "Keresztnév",
+            "pattern": "^[a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]{2,20}$",
+            "message": "Mennyiség kitöltése kötelező!",
+            "required": true
+        }
+    }
+
+    $("#form neve").submit(function () {
+        var abort = false;
+        $("div.error").remove();
+        for (key in validObj) {
+            if ((validObj[key].required) && ($("#"+key).val() === '')) {
+                $("#"+key).after("<div class='error'>"+validObj[key].message + "</div>");
+                abort = true;
+            }
+        }
+        if (abort) {
+            return false;
+        } else {
+            return true;
+        }
+    });//on submit
+
+
+4. JQuery validálás submit előtt, mező váltáskor
+--------------------------------------------------
+	var validObj = {
+        "hatarido": {
+            "name": "Vezetéknév",
+            "pattern": "^[a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]{2,20}$",
+            "message": "Határidő kitöltése kötelező!",
+            "required": true
+        },
+        "mennyiseg": {
+            "name": "Keresztnév",
+            "pattern": "^[a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]{2,20}$",
+            "message": "Mennyiség kitöltése kötelező!",
+            "required": true
+        }
+    }
+
+
+	$(":input").blur(function(){
+        
+        var myPattern = validObj[$(this).attr("name")].pattern;
+        var isValid = $(this).val().search(myPattern) >= 0;
+         
+        if(!isValid){
+            $("#"+$(this).attr('name')+"Error").remove();
+            $(this).after("<div id='"+$(this).attr('name')+"Error' class='error'>"+validObj[$(this).attr("name")].message + "</div>");
+        }else{
+            $("#"+$(this).attr('name')+"Error").remove();
+        }    
+    });//blur vége    
+
+5. JS valid submit utánn
+-------------------------
+
+	var error = document.getElementById('error');
+	var inputFields = document.reg_form.getElementsByTagName("input");
+
+	var validObj = {
+	    "firstName" : {
+	        "name"    : "Vezetéknév",
+	        "pattern" : "^[a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]{2,20}$",
+	        "message" : "Vezetéknév mező csak betűt tartalmazhat!<br>",
+	        "required" : true
+	    },
+	   "lastName" : {
+	       "name"    : "Keresztnév",
+	       "pattern" : "^[a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]{2,20}$",
+	       "message" : "Keresztnév mező csak betűt tartalmazhat!<br>",
+	       "required": true
+	   }
+	}
+
+	document.reg_form.onsubmit = function(){
+	    error.innerHtml = "";
+	    for (key in validObj) {
+	        var myField = document.getElementById(key);
+
+	        if ((validObj[key].required) && (myField.value === '')){
+	            error.innerHTML += validObj[key].name + " mező kitöltése kötelező!<br>";
+	            var hiba = true;
+	        }
+	    }
+
+	    if(hiba){
+	        return false;
+	    }
+	    return true;
+	}
+
+	for (key in inputFields) {
+	  var myField = inputFields[key];
+
+	  myField.onchange = function(){
+	     var pattern = new RegExp(validObj[this.name].pattern);
+	     var isValid = pattern.test(this.value);
+
+	     if (!isValid) {
+	         error.innerHTML += validObj[this.name].message;
+	     }else{
+	         error.innerHTML ="";
+	     }
+	  }
+
+	}
+
+6. JQuery valid 1.0 (üres mező submit után + pattern submit előtt)
+-------------------------------------------------------
+    
+
+	$('document').ready(function () {
+
+    var validObj = {
+        "hatarido": {
+            "name": "Határidő",
+            "pattern": "^[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])$",
+            "message": "Határidő a következő formátumban létezhet: YYYY-MM-DD!",
+            "required": true
+        },
+        "mennyiseg": {
+            "name": "Mennyiség",
+            "pattern": "^[0-9]{2,20}$",
+            "message": "Mennyiség csak szám lehet!",
+            "required": true
+        }
+    }
+
+    $("#igeny").submit(function () {
+        var abort = false;
+        $("div.error").remove();
+        for (key in validObj) {
+            if ((validObj[key].required) && ($("#"+key).val() === '')) {
+                $("#"+key).after("<div id='"+key+"Error' class='error'>"+validObj[key].name + " mező kitöltése kötelező!</div>");
+                abort = true;
+            }
+        }
+        if (abort) {
+            return false;
+        } else {
+            return true;
+        }
+    });//on submit
+    
+    $(":input").change(function(){
+        
+        var myPattern = validObj[$(this).attr("name")].pattern;
+        var isValid = $(this).val().search(myPattern) >= 0;
+         
+        if(!isValid){
+            $("#"+$(this).attr('name')+"Error").remove();
+            $(this).after("<div id='"+$(this).attr('name')+"Error' class='error'>"+validObj[$(this).attr("name")].message + "</div>");
+        }else{
+            $("#"+$(this).attr('name')+"Error").remove();
+        }    
+    });//change vége
+    })
+
+7. Kinyílós menüpontok (playing with classes,Learnable.com.Introduction.to.jQuery-BooKWoRM)
+-----------------------
+
+$('.navigating > li').hover(function(){   ---> 2 függvény: 1.amikor fölötte van az egér, 2. amikor elhaggya az egér az elemet
+    $(this).addClass("kinyilosMenupont");
+}, function(){
+    $(this).removeClass("kinyilosMenupont");
+});
+
+8. legördülő,felgördulő menü(playing with classes,Learnable.com.Introduction.to.jQuery-BooKWoRM)
+----------------------------------------------------------------------------------------------
+slideUp(),slideDown()
+
+9.Karakter számláló (playing with classes,Learnable.com.Introduction.to.jQuery-BooKWoRM)
+--------------------
+
+$('.textbox').on({
+    keydown :function(){
+        var countDown = 150 - $(this).val().length;
+
+        $('.charDown').html(countDown);
+
+        if (countDown < 150) {
+            $(this).css('background-color','red');
+        }else{
+            $(this).css('background-color','white');
+        }
+    },
+});

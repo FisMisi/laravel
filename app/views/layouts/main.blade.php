@@ -5,6 +5,9 @@
         <title>Kategóriás</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        {{ HTML::style('css/admin.css') }}
+        
         <!-- Bootstrap -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
         <!-- Optional theme -->
@@ -41,6 +44,7 @@
                             <ul class="nav navbar-nav">
                                 
                                 <li {{{ (Request::is('menuitems*') ? 'class=active' : '') }}}><a href="{{URL::route('menuitems.index')}}">Menü</a></li>
+                                <li {{{ (Request::is('products*') ? 'class=active' : '') }}}><a href="{{URL::route('products.lists')}}">Kínálat megtekintése</a></li>
                                 @if(!Auth::check())
                                 <li><a href="{{URL::route('users.create')}}">Regisztráció </a></li>
                                 <li><a href="{{URL::route('login')}}">Belépés </a></li>

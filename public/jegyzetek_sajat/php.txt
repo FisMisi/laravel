@@ -1,0 +1,84 @@
+error_reporting(E_ALL);
+ini_set("display_errors", true);
+
+var_export($objektum, true); //<pre>között</pre>  megjeleníti az objektum állapotát
+
+trigger_error('hibaüzenet'); // osztályon bellül meghívom valami hiba kezelő vizsgálaton bellül
+
+
+//include, require helyett
+function __autoload($class_name) {
+                include 'class.' . $class_name;
+            }
+
+
+//osztályon bellüli példányosító metódus:
+...
+private static $_peldany;
+
+public static function getpeldany()
+{
+	if (!self::$_peldany) {
+		self::$_peldany = new self();
+	}
+	return self::$_peldany;
+}
+
+
+foreach ($this->urlapAdatok as $nev => $ertek)
+        {
+          if ($ertek != ""){
+              $this->$nev = $ertek;
+          }
+        }
+        
+
+---------------------------------------- PHP fejlesztés felsőfokon ---------------------------
+jelszó:
+
+function good_password($password) {
+if (strlen($password) < 8) {
+return 0;
+}
+if (!preg_match(" Ad/ ", $password) ) {
+return 0;
+}
+if(!preg_match("/[a-z]/ i " , $password)) {
+return 0;
+}
+}
+DB osztály 68 oldal
+USER OSZTÁLY AKTÍV REKORD MINTÁVAL :-> PHP fejlesztés felsőfokon 350.oldal (333)
+
+ADMIN osztály 63.oldal
+
+VALIDÁLÁS 04_01 --> create secure website
+
+
+-----------------------Advanced PHP videók ---------------------------------------------------
+
+realpath();                                                    visssza adja a filt tartalmazó mappa elérési útját, ahol meghívom ezt a függvényt
+get_include_path,set_include_path,                             elérési utak manipulálása
+namespace                                                      névterek use \valami\models    namespace -,,- kell hogy elérje a különböző helyeken levő osztályokat
+__call()                                                       Ha egy objektumon olyan metódust próbálunk hívni, ami nem létezik, helyette a  __call() hívódik meg. Két paraméteres, az első a metódus neve, a második pedig az argumentumok.
+preg_split()                                                    regulásris kifejezés mentén darabol fel stringet
+
+callback függvények: Függvényváltozók A PHP lehetővé teszi a függvényváltozók használatát. Ha egy változónevet kerek zárójelek követnek, akkor a PHP megkeresi a változó értékével azonos nevű függvényt, és megpróbálja azt végrehajtani. Ezt többek között visszahívandó (callback) függvények vagy függvénytáblák implementálására használható. A függvényváltozók nem fognak működni az olyan nyelvi elemekkel, mint például az echo(), unset(), isset(), empty() vagy include() és print(). echo()unset()isset()empty()include()print()echo()unset()isset()empty()include()print() \n"; } function bigyo($param = '') { echo "A bigyo()-ban; az argumentum:'$param'. \n"; } $func = 'ize'; $func(); $func = 'bigyo'; $func('Stex van Boeven'); ?> \n"; } function bigyo($param = '') { echo "A bigyo()-ban; az argumentum:'$param'. \n"; } $func = 'ize'; $func(); $func = 'bigyo'; $func('Stex van Boeven'); ?>
+
+
+Form
+-----
+
+amnikor feltöltök egy formot, checkboxot, ahelyett hogy foreachel bejárnáma  tömböt és kiiratnám ami ki van választva,
+ egyszerűbb, ha minden mezőnél megvizsgálom, hogy az adott checkbox érték benne van e a tömben => 
+isset(tömb) és in_array("oporto",$borok), ha igen akkkor rárakom a checked értéket
+
+Validálás: filter_var();
+
+
+
+TÖMB
+----
+
+unset($datas['_token']);       //  adott indexü elem törlése  a tömbből
+$datas = array_values($datas); // 'reindex' array

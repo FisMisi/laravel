@@ -34,6 +34,22 @@
     </div>
 </div>
 
+<div class="form-group">  
+    {{ Form::label('password','Jelszó', array('class' => 'col-sm-3 control-label')) }}
+    <div class="col-sm-3">
+        {{ Form::password('password', null, array('class' => 'form-control')) }}
+        {{ $errors->first('password') }}
+    </div>
+</div>
+
+<div class="form-group">  
+    {{ Form::label('password_confirmation','Jelszó újra', array('class' => 'col-sm-3 control-label')) }}
+    <div class="col-sm-3">
+        {{ Form::password('password_confirmation', null, array('class' => 'form-control')) }}
+        {{ $errors->first('password') }}
+    </div>
+</div>
+
 <div class="form-group">
     <div class="col-sm-offset-3 col-sm-9"> 
         {{ Form::submit('Continoue',array('class'=>'btn btn-success')) }}

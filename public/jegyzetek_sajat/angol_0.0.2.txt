@@ -1,0 +1,55 @@
+-----ruha-------
+pants    - nadrág
+suit     - öltöny
+
+
+
+
+ige
+----
+
+reserve - fentart,foglal, tartalék
+
+
+-----névmás------
+thoes    -  azok
+
+
+
+melléknevek
+-----------
+fundamental - alapvető
+external    - külső
+
+
+---számok--------
+even     -  páros
+odd		 -  páratlan
+
+
+
+---színek--------
+purple - lila
+
+
+Példamondatok
+--------------
+My hat							   - Én kalapom
+Our hous                           - Mi házunk
+The ring is mine.                  - A gyűrű az enyém
+The dog is theirs.                 - A kutya az övék
+
+
+Programozás
+------------
+
+foundations  - alapok
+dependencies - függőségek
+
+IKRON
+-----
+
+Direct Merchant Notifications 		- közvetlen kereskedelmi értékesítés
+common 								- közös vonás, közös tulajdonság
+troubleshooting    					- hibajavítás
+charge								- elszámolás

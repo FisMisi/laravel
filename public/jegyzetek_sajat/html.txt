@@ -1,0 +1,24 @@
+required                  			  --> kötelező, HTML5 validálás <input type="text" required ...>
+
+maxlength="20"            			  --> szöveges mezők hossz max korlát
+
+min/max             			      --> számok értékének korlátozása
+
+min/max input type="date" 		      --> min="2013-05-06"
+
+multiple							  --> select,email, file több tétel kiválasztása
+
+accept="image/png"					  --> type="file" attribútumaként lehet használni
+
+select								  --> select name mindíg azonos, option value változik
+
+range								  --> új html5 attribútum
+
+list ( <datlist> )	   				  --> selecthez hasonló    <input list="gyümölcs"> 
+																  <datalist id="gyümölcs">
+																     <option value="narancs">
+																     <option value="körte">
+																     ...
+																  </datalist>
+
+pattern								  ---> reguláris kifejezések  pattern="[a-z0-9]"

@@ -1,0 +1,61 @@
+Multi documentum root
+======================
+0. dns név hozzáadása a C:\Windows\System32\drivers\etc\hosts
+
+127.0.0.1       localhost
+127.0.0.1       laravel
+
+1. https.conf fileban kivenni egy kommentet:
+
+# Virtual hosts
+Include conf/extra/httpd-vhosts.conf
+
+2. hozzá adni az új hostokat a C:\wamp\bin\apache\apache2.4.9\conf\extra\httpd-vhosts.conf 
+
+listen 127.0.0.1:80
+
+<VirtualHost 127.0.0.1:80>
+DocumentRoot "C:/wamp/www"
+ServerName localhost
+ServerAlias localhost
+<Directory "C:/wamp/www">
+Options Indexes FollowSymLinks MultiViews
+AllowOverride all
+Order allow,deny
+allow from all
+Require all granted
+</Directory>
+</VirtualHost>
+
+<VirtualHost 127.0.0.1:80>
+DocumentRoot "C:/laravel/public"
+ServerName laravel
+ServerAlias laravel
+<Directory "C:/laravel/public">
+Options Indexes FollowSymLinks MultiViews
+AllowOverride all
+Order allow,deny
+allow from all
+Require all granted
+</Directory>
+</VirtualHost>
+
+3. restart apache
+
+
+NewDocumentum root
+==================
+
+Click on WampServer icon in taskbar
+
+Select Apache > httpd.conf from the pullup
+
+Search for the term “DocumentRoot”
+
+Change the DocumentRoot path to your custom directory
+
+Search again for “DocumentRoot”
+
+again same procedure
+
+Save your changes and “Restart All Services”

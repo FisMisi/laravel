@@ -4,49 +4,18 @@ class ExampleTest extends TestCase
 {
 
   
-     /**
-     * Model regisztrációja step2 kategória rules és messages. 
-     *
-     * @return array()
-     */
-    public static function getCategoryRules($types)
-    {
-        $newMessages = [];
-        $newRules    = [];
-        
-        foreach ($types as $type)
-        {
-            $message = [
-                $type['id'].".required" => "Please choose " . $type[title] . " element(s)",
-            ];
-            
-            $newMessages = $newMessages + $message;
     
-            $rule = [
-                $type['id'] => 'required'
-            ];
-            
-            $newRules = $newRules + $rule;
-        }
-        
-        return [
-                'newRules'    => $newRules,
-                'newMessages' => $newMessages
-              ];
-    }
     
      public function UpdateModelStep2($id)
     {   
         $data = Input::all();
         $rules = Model::$step2_rules;
         
-        $types = ModelCategoryType::getCategoryTypes();
+       
         
-        //lekérem a rullokat és hibaüzeneteket
-        $categ = ModelModelCategory::getCategoryRules($types);
         
-        //validálom a típusokat
-        $valid_categories = Validator::make($data,$categ['newRules'],$categ['newMessages']);
+        
+        
         
         $valid = Validator::make($data, $rules);
         
@@ -111,12 +80,7 @@ class ExampleTest extends TestCase
             return Redirect::to('/');    
         }
        
-        //user step 2 form validáló és a kategória validáló egybe vonása 
-        $errors = $valid_categories->messages()->merge($valid->messages());
-        
-        return Redirect::back()
-                ->withInput()
-                ->withErrors($errors);
+       
     }
     
     
@@ -139,41 +103,6 @@ class ExampleTest extends TestCase
         
         if($valid->passes() && $valid_categories->passes())
         {
-            $model = Model::where('user_id','=',Auth::user()->user_id)->first();
-            
-            $model->introducte = Input::get('introducte');
-       
-             //személyi okmányok feltöltése
-            if(Input::file('documents'))
-            {   
-                $files = Input::file('documents');
-                $this->uploadPersonalDocuments($files,$model->id);
-            }
-            
-            $myPublicFolder = public_path();
-            
-            //introduction video feltöltése
-           
-            if(Input::file('introduction_video'))
-            {    
-                $savePath = $myPublicFolder.'/model_videos/model_introduction/';
-                $introName = Input::file('introduction_video')->getClientOriginalName(); 
-                $introname = Auth::user()->user_id.'.'.$introName; // renameing image
-                Input::file('introduction_video')->move($savePath, $introname);
-            }
-            
-            //thank you video feltöltése
-            
-            if(Input::file('thanks_video'))
-            {
-                $savePath   = $myPublicFolder.'/model_videos/model_thanks/';
-                $thanksName = Input::file('thanks_video')->getClientOriginalName(); 
-                $thanksname = Auth::user()->user_id.'.'.$thanksName; // renameing image
-                Input::file('thanks_video')->move($savePath, $thanksname);
-            }
-            
-            //step2 save
-            $model->update();
             
             
             //kategóriák mentése a modelhez

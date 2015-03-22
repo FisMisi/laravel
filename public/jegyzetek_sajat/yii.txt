@@ -1,0 +1,79 @@
+public function actionIndex($page=1)
+    {      
+        // ha nincs belépve, redirektalas a login page-re
+        AccountHelper::redirectToSpecificPage('account/login', 'competition/index');
+        
+        //ha be van lépve a user, lekérem a pályázatait
+        $aData = AccountHelper::getUserApply($page);
+        
+        //kapott oldalak számossága
+        $count = $aData->pages;
+        
+        $pages = new CPagination($count);
+        $pages -> pageSize = 10;
+        //megjelenitéshez is hasznalom ezeket az adatokat, ezért kirakom sessionbe
+        Yii::app()->session['applyListAndStatuses'] = $aData; 
+        $this->render('index', array(
+            'competitions' => $aData->list,
+            'statuses' => $aData->statuses,
+           //SS 'page' => $page,
+            'pages' => $pages
+        ));
+    }
+
+<div id="simple-pager">
+  <?php $this->widget('CLinkPager',array(
+            'pages'=>$pages,
+            'maxButtonCount'=>0,
+            'firstPageLabel' => '',
+            'lastPageLabel'  => '',
+            'prevPageLabel'=>'<span class="ui-btn-inner"><span class="ui-btn-text">Elõzõ</span><span class="ui-icon ui-icon-arrow-l ui-icon-shadow">&nbsp;</span></span>',
+            'nextPageLabel'=>'<span class="ui-btn-inner"><span class="ui-btn-text">Következõ</span><span class="ui-icon ui-icon-arrow-r ui-icon-shadow">&nbsp;</span></span>',
+            'htmlOptions'=>array(
+                'class'=>'simple-pager',
+                'data-theme' => 'c',
+                ),             
+            )); 
+  ?>
+</div>
+
+
+
+
+class ArticleController extends Controller {
+ 
+    public function actionIndex() 
+    {
+            $category = 'Álláskeresési tanácsok';
+            if(isset($_GET['id']))
+            {
+               $category=$_GET['id'];
+            }
+            //api hívás, lekérem a híreket, hír kategóriákat
+            $aArticleList = ArticleHelper::getArticleList($category);
+            //kategória alapján letárolom a híreket
+            $article = $aArticleList->articleList;
+            if(isset($article)) {
+            Yii::app()->session['aArticle'] = $article;
+            $numArticle = $aArticleList->numArticle;
+            }else{
+               $article = null;
+               $numArticle = 0;
+            }
+            //összes létezõ hír kategória
+            $categories = $aArticleList->categoryList;
+            $pages = new CPagination($numArticle);
+            $pages -> pageSize = 10;
+
+            $this->render('index', array(
+                'articles' => $article,
+                'categories' => $categories,
+                'currentCateg' => $category,
+                'pages' => $pages
+            ));
+    }
+
+
+<div id="hits-pager">
+  <?php $this->widget('CLinkPager',array('pages'=>$pages)); ?>
+</div>

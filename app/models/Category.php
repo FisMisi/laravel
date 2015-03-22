@@ -28,7 +28,7 @@ class Category extends Eloquent
                 ->where('categories.type_id', '=', $type)
                 ->where('categories.active', '=', 1);
             
-        $ret = $query->get(array('categories.id as categId',
+        $ret = $query->orderBy('categories.id')->get(array('categories.id as categId',
                                  'categories.title as categTitle',
                                  'user_category.user_id as userId')
                      )->toArray();     
@@ -36,6 +36,17 @@ class Category extends Eloquent
         $last_query = end($queries);
         var_dump($last_query);*/
         return $ret;
+    }
+    
+    public static function getCategoriesByUserId($userId)
+    {
+        $query = self::join('user_category', 'user_category.category_id', '=', 'categories.id')
+                 ->where('user_category.user_id', '=', $userId)
+                 ->get(array(
+                     'categories.title as name'
+                 ));
+        
+        return $query;
     }
     
 }

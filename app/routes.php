@@ -93,3 +93,6 @@ Route::any('menuitems/createItem', array('as' => 'menuitems.createItem', 'uses' 
 Route::post('menuitems/destroy/{id}', array('as' => 'delItem', 'uses' => 'MenuitemsController@delProd'));
 Route::any('menuitems/show/{id}', array('as'=>'menuitems.show', 'uses'=>'MenuitemsController@getShow'));
 Route::any('menuitems/search', array('as'=>'menuitems.search', 'uses'=>'MenuitemsController@getSearch'));
+
+Route::any('products',array('as' => 'products.index', 'uses' => 'ProductsController@index'));
+Route::any('products/lists',array('as' => 'products.lists', 'uses' => 'ProductsController@lists'));

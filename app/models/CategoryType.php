@@ -19,5 +19,12 @@ class CategoryType extends Eloquent
         return $query->get()->toArray();
     }
     
+     public static function getCategoryTypes()
+    {   
+        $query = self::where('active', '=', 1);
+ 
+        return $query->get()->toArray();
+    }
+    
     
 }
