@@ -1,0 +1,43 @@
+1. Beszélt nyelvek: meg kell tudni adni a saját model adatlapon (regisztráció step2 - checkbox), ill. beszélt nyelvek megjelennek a listákban
+   //adminon felsorolni na modell manage baszásban
+
+Táblák:
+    gs_languages   //modellek szánmára elérhető beszélt nyelvek
+        id,
+        sort(varchar(3)), //HU,ENG
+        name,             //HUNGARIAN,ENGLISH,CHINESE
+    
+    models_languages //kapcsolótábla a gs_languages és a models táblák között
+        id,
+        gs_language_id,
+        model_id
+
+2. Modell által vállalt videó kategóriák: step2,ben megadhatja checkboxos listából, listában is meg kell jeleníteni
+   (csak model_gs_vc join, array_agg(gs_vc_id) foreachel megyünk végig az előre lekérdezett, gs_video_categoriesből rendeljük hozzá)
+    
+   //adminon felsorolni na modell manage baszásban
+   
+
+   Táblák:
+        gs_video_categories  //kell hozzá admin felület, listázás, módosítás, felvétel
+            id,
+            name,
+            title,
+            active (1 shortint)
+        
+        model_gs_vc        // gs video categories és a model közti kapcsoló
+            id,
+            gs_vc_id,
+            model_id,
+            active   (1 shortint)         // újjat nem vállal, a régiek miatt, hogy tudjuk azokat kezelni
+
+3. storaged_videos
+
+  + mező (name,title not null) //adminon meg is jeleníteni a name nem módosítható, title igen
+
+
+4.  amit getből kapok (lista oldal) (gs), ugyan úgy megy minta  model lista oldal (ms):
+   // ki vállal anál öklözést model_gs_vc táblából kérdezünk le , mit vállal (GIFT SHOW CATGEORIES)
+
+  - Get-ből: page, gs_vc_id (pl.: gs=4 egy szám, id lessz csak) -- elre kell szűrni, ezt adom át a modellnak, csak egy id, gropp by kell
+  - datas tömből fixen : ua mint a mostani lista oldal
