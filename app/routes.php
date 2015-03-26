@@ -13,7 +13,8 @@
 
 /*Admin section*/
 Route::group(array('before' => 'auth'),function()
-{
+{   
+    Route::any('/admin/users/export_users',array('as'=>'/admin/users/export_users', 'uses' =>'AdminUserController@exportUsers'));
     Route::get('/admin/users/index',array('as'=>'admin.users.index', 'uses' =>'AdminUserController@index'));
     Route::post('/admin/users/index',array('as'=>'admin.users.postindex', 'uses' =>'AdminUserController@index'));
     Route::resource('/admin/users','AdminUserController',array('except' => array('show')));
@@ -45,7 +46,7 @@ Route::group(array('before' => 'auth'),function()
      //kategória mentés
     Route::any('/admin/categories/cat/update/{id}',array('as'=>'admin.categories.cat.update', 'uses' =>'AdminCategoryController@updateCategory'));
     
-    
+    Route::get('/admin/menuitems/exportItems',array('as'=>'/admin/menuitems/exportItems', 'uses' =>'AdminMenuitemController@exportItems'));
     Route::get('/admin/menuitems/index',array('as'=>'admin.menuitems.index', 'uses' =>'AdminMenuitemController@index'));
     Route::post('/admin/menuitems/index',array('as'=>'admin.menuitems.postindex', 'uses' =>'AdminMenuitemController@index'));
     Route::resource('/admin/menuitems','AdminMenuitemController', array('except' => array('show')));    

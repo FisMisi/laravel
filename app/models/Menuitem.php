@@ -29,7 +29,15 @@ class Menuitem extends Eloquent
         "availability"=> 'integer'
     ];
     
-    public static function getQuery($availability, $type)
+    public static $select_cols = array(
+                'menuitems.id as menuitem_id',
+                'menuitems.name as product_name',
+                'menuitems.price as product_price',
+                'menuitems.availability as product_availability',
+                'categories.name as categ_name',
+            );
+
+     public static function getQuery($availability, $type)
     {
         $query = self::join('categories', 'menuitems.category_id', '=', 'categories.id');
         
@@ -41,13 +49,7 @@ class Menuitem extends Eloquent
             $query = $query->where('menuitems.category_id', '=', $type); 
         }
         
-        return $query->paginate(6, array(
-                'menuitems.id as menuitem_id',
-                'menuitems.name as product_name',
-                'menuitems.price as product_price',
-                'menuitems.availability as product_availability',
-                'categories.name as categ_name',
-            ));
+        return $query->paginate(6, self::$select_cols);
     }
 
     public function category()

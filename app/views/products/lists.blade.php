@@ -15,7 +15,7 @@
          <hr />
         <h3>{{ $user['userName'] }}</h3>
         {{ HTML::image($user['image'],$user['image'],array('width' => '50')) }}
-        {{ $user['country_name'] }}
+       
         @foreach(Category::getCategoriesByUserId($user['userId']) as $category)
         
             {{ $category->name }}

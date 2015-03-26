@@ -33,6 +33,43 @@ class AdminUserController extends \BaseController
         return View::make('admin.users.index', compact('users'));
     }
     
+    public function exportUsers() 
+    {
+         $query = User::where('admin','=',0);
+        
+         $getArray = array("users.id",
+                          "users.first_name",
+                          "users.last_name",
+                          );
+
+        $count = $query->count();
+        $page = ceil($count/4);
+        $basePath = public_path();
+        if (!file_exists($basePath.'/userexport')) {
+                mkdir($basePath.'/userexport', 0770, true);
+        }
+        $path = $basePath.'/userexport/';
+        $file = "users".date("Y_m_d_h_i_s").".csv";
+        $del = ',';
+        $newRow = "\n";	
+        $exportData = '';
+        $exportData .= 'USER ID'.$del.'FIRST NAME'.$del.'LAST NAME'.$del.$newRow;
+        for($p = 0;$p < $page; $p++) {
+                file_put_contents($path."rows.txt", $p);
+                $idDatas = $query->skip($p*4)->take(4)->get($getArray)->toArray();
+                
+                foreach($idDatas as $row) {
+                        $exportData.= $row['id'].$del
+                                     .$row['first_name'].$del
+                                     .$row['last_name'].$newRow;
+                }
+                file_put_contents($path.$file, $exportData, FILE_APPEND | LOCK_EX);
+                $exportData = '';
+        }
+
+        return Response::download($path.$file, $file);
+    }
+    
 
     /**
      * Új User Form megjelenítése.

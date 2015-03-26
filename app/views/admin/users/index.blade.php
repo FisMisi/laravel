@@ -11,7 +11,7 @@
                 {{ Form::select('admin', array('all' => '- All -', 'user' => 'user',  'admin' => 'admin'),null, array('selected'=>'all', 'class' => 'form-control')) }}
                 {{ Form::submit('GO',array('class'=>'btn btn-success')) }}
             {{ Form::close() }}
-        
+            <a class="btn btn-info" href="{{ route('/admin/users/export_users') }}">Export Users</a>
         </div>
     @stop
   <p class="bg-primary flashmsg">USERS</p>

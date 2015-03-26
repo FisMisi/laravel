@@ -4,6 +4,21 @@ class AdminMenuitemController extends \BaseController {
 
     public function index() 
     {
+        $params = $this->getParams(Input::all());
+       
+        $menuitems = Menuitem::getQuery($params['availability'],$params['type']);
+        
+        $categories = [];
+        foreach (Category::all() as $categ) {
+            $categories[$categ->id] = $categ->name;
+        }
+        return View::make('admin.menuitems.index')
+                        ->with('menuitems', $menuitems)
+                        ->with('categories', $categories);
+    }
+    
+    public function getParams($datas)
+    {
         $availability = 2;
         if(!empty($avai=Input::get('availability'))){
            switch($avai)
@@ -26,18 +41,55 @@ class AdminMenuitemController extends \BaseController {
                $type = (int)$type_; 
             }
         }
-       
-        $menuitems = Menuitem::getQuery($availability, $type);
         
-        $categories = [];
-        foreach (Category::all() as $categ) {
-            $categories[$categ->id] = $categ->name;
-        }
-        return View::make('admin.menuitems.index')
-                        ->with('menuitems', $menuitems)
-                        ->with('categories', $categories);
+       return [
+             "availability" => $availability,
+             "type"         => $type
+       ]; 
     }
 
+
+    public function exportItems() 
+    {
+        $params = $this->getParams(Input::all());
+         
+        $query = Menuitem::getQuery($params['availability'],$params['type']);
+         
+        $getArray = Menuitem::$select_cols;
+
+        $count = $query->count();
+        $page = ceil($count/4);
+        $basePath = public_path();
+        if (!file_exists($basePath.'/userexport')) {
+                mkdir($basePath.'/userexport', 0770, true);
+        }
+        $path = $basePath.'/userexport/';
+        $file = "users".date("Y_m_d_h_i_s").".csv";
+        $del = ',';
+        $newRow = "\n";	
+        $exportData = '';
+        
+        $exportData .= 'Menuitem ID'.$del
+                       .'PRODUCT NAME'.$del
+                       .'CATEG NAME'.$del
+                       .$newRow;
+        
+        for($p = 0;$p < $page; $p++) {
+                file_put_contents($path."rows.txt", $p);
+                $idDatas = $query;
+                
+                foreach($idDatas as $row) {
+                        $exportData.= $row->menuitem_id.$del
+                                     .$row->product_name.$del
+                                     .$row->categ_name.$newRow;
+                }
+                file_put_contents($path.$file, $exportData, FILE_APPEND | LOCK_EX);
+                $exportData = '';
+        }
+
+        return Response::download($path.$file, $file);
+    }
+  
     public function create() {
         return View::make('menuitems.create');
     }
