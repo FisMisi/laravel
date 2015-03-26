@@ -1,0 +1,117 @@
+DB osztály 68 oldal :-> PHP fejlesztés felsőfokon 350.oldal (333)
+
+explain            ->    segítségével megvizsgálhatjuk a lekérdezések működésének részleteit
+
+
+                                        MySQL puska♠
+SELECT
+Szintaxis
+    SELECT [DISTINCT|ALL] *|oszlop [AS alias] [,…] [FROM tábla [AS alias] [,…]]
+    [WHERE feltétel] [GROUP BY oszlop [,…] [HAVING záradék]]
+    [ORDER BY oszlop [ASC|DESC] [,…]] [LIMIT [kezdet,] sorok];
+
+Leírás
+Adatok visszakeresését hajtja végre egy adatbázisból. Az adatbázisok tábláiból adatok olvasásának elsődleges
+módszerét jelenti a SELECT utasítás.
+
+Ha a DISTINCT kulcsszót is megadjuk, az egyforma sorokból csak egy sornyi adatot ad vissza az utasítás.
+Ennek ellentettjét jelenti az ALL kulcsszó, amely az összes visszakapott adatot megjeleníti. Az alapbeállítás az
+ALL.
+
+Tetszőleges összetett oszlop neve vagy funkciója hivatkozási névvel (alias) egyszerűsíthető. Az értékekre ezután
+ezzel a névvel hivatkozhatunk a SELECT utasítás tetszőleges részében, kivéve a WHERE záradékban, mivel
+értékük itt nem kiszámítható.
+Az oszlopnevek megadhatók oszlop, tábla.oszlop vagy adatbázis.tábla.oszlop formában. A hosszabb alakok az
+azonos nevű oszlopok megkülönböztetésére szolgálnak, de bármikor használhatók.
+
+A SELECT utasításban függvények is használhatók. A MySQL számos beépített függvénye (lásd a második oldalt!)
+végrehajtható a táblák adatain, és a kiszámított értékek visszaadhatók a felhasználónak.
+Ha nem adunk meg korlátozásokat, a SELECT a kijelölt táblák összes adatát visszaadja. A keresési korlátozásokat
+a következő alutasítások tartalmazhatják:
+
+WHERE feltétel
+
+    A WHERE záradékkal a megjelenítendő sorok számát korlátozhatjuk feltétel megadásával. A WHERE
+    kulcsszó mögött egy egyszerű vagy összetett feltétel található: egy tábla valamilyen tulajdonságát hasonlítjuk
+    egy értékhez. Az összehasonlító operátorok: = egyenlő; <> vagy != nem egyenlő; < kisebb, mint;
+    > nagyobb, mint; <= kisebb vagy egyenlő; >= nagyobb vagy egyenlő. Összetett szűkítés esetén a felté-
+    teleket logikai műveletekkel kell összekötni: NOT negáció; AND logikai ÉS; OR logikai VAGY.
+    Bizonyos esetekben meg kell állapítanunk, hogy egy érték tagja-e az adott eredményhalmaznak, illetve az
+    adott tartományba esik-e. Az első kérdésre az IN operátor használatával kapjuk a választ (például:
+    SELECT cim FROM konyvek WHERE szerzo IN (’Stepen King’, Richard Bachman’);). A BETHWEEN operá-
+    torral azt vizsgálhatjuk, hogy egy érték a megadott tartományban van-e (például: SELECT cim FROM
+    konyvek WHERE konyvID BETHWEEN 1 AND 100;).
+
+A LIKE operátorral egy karakterláncot egy „hiányos” mintával hasonlíthatunk össze, ugyanis a MySQL lehetővé
+    teszi helyettesítő karakterként különleges karakterek elhelyezését a mintaként szolgáló jelsorozatban.
+    A % karakter tetszőleges számú, akár nulla karaktert is helyettesíthet. Az _ karakter pontosan egy
+    karaktert helyettesít.
+
+GROUP BY oszlop [,…]
+
+    Az adott oszlopból adatot tartalmazó sorokat gyűjti össze. Ez lehetővé teszi összesítő függvények alkalmazását
+    az oszlopokon (például: SELECT nev, MAX(kor) FROM dolgozok GROUP BY nev;). Az oszlopérték
+    tényleges oszlop-név helyett előjel nélküli egész vagy képlet is lehet.
+
+HAVING záradék
+
+    Megegyezik a WHERE záradékkal, a különbség annyi, hogy ezt az adatbázisból már lekért adatokon hajtjuk
+    végre. A HAVING utasítás megfelelő hely az összesítő függvények (lásd a második oldalt!) végrehajtásá-
+    hoz (például: SELECT nev, MAX(kor) FROM dolgozok GROUP BY nev HAVING MAX(kor)>80;).
+
+ORDER BY oszlop [ASC|DESC] [,…]
+
+    A megadott oszlop(ok) szerint rendezi a visszaadott sorokat. Ha a DESC kulcsszó szerepel, a rendezési
+    sorrend csökkenő, egyébként növekvő (például: SELECT nev, MAX(kor) FROM dolgozok ORDER BY kor
+    DESC;). A növekvő sorrend az ASC kulcsszóval is megadható. A GROUP BY záradékhoz hasonlóan az oszlopérték
+    tényleges oszlop-név helyett előjel nélküli egész vagy képlet is lehet.
+
+LIMIT [kezdet,] sorok
+
+    Csak a megadott számú sort adja vissza. Ha a kezdet értéket megadjuk, akkor annyi sor kimarad a visszaküldésből.
+    Az első sor száma 0 (például: SELCT url FROM links LIMIT 5,10; – az 5. és 14. közötti URLcímeket
+    adja vissza).
+
+                                ----------  Függvények ----------
+
+Összesítő függvények
+AVG(n): a paraméter értékeinek átlagát adja vissza.
+COUNT(p): azt adja vissza, hogy a kifejezés hányszor nem volt NULL értékű.
+MAX(n): a paraméter legnagyobb értékét adja vissza.
+MIN(n): a paraméter legkisebb értékét adja vissza.
+STD(n): a paraméter értékeinek szórását adja vissza.
+SUM(n): a paraméter értékeinek összegét adja vissza.
+
+Numerikus függvények
+
+    ABS(n): szám abszolút értéke.
+    EXP(n): az e természetes állandót a paraméter hatványára emeli (en).
+    LOG(n): a paraméter természetes alapú logaritmusát adja vissza.
+    LOG10(n): a paraméter tízes alapú logaritmusát adja vissza.
+    MOD(n1,n2): az n1÷n2 osztás maradékát adja vissza.
+    PI(): π értékét adja vissza.
+    POWER(n1,n2): az első számot a másodikként megadott hatványára emeli.
+    ROUND(n1,n2): az első számot a másodikként megadott számú tizedes jegyre kerekíti. Ha a második paraméter
+        értéke 0, egész értéket kapunk.
+    SQRT(n): a szám négyzetgyökét adja vissza.
+    TRUNCATE(n1,n2): az első számot a másodikként megadott számú tizedes jegyre csonkolja. Ha a második paraméter
+     értéke 0, egész értéket kapunk.
+
+Karakteres függvények
+
+    CONCAT(s1,s2,…): a karaktersorozat összefűzésével kapott karakterláncot adja vissza.
+    LOWER(s): a karaktersorozat csupa kisbetűvel adja vissza.
+    SUBSTRING(s,n1,n2): a karaktersorozat megadott pozíciójánál kezdődő (n1) és adott hosszúságú részét (n2) adja
+    vissza.
+    UPPER(s): a karaktersorozat csupa nagybetűvel adja vissza.
+    Dátum és idő függvények
+    CURDATE(): rendszerdátum ÉÉÉÉ-HH-NN formátumban.
+    CURTIME(): rendszeróra állása ÓÓ:PP:MM formátumban.
+    DAYOFMONTH(d): dátumhoz tartozó nap hónapon belüli sorszáma.
+    HOUR(i): időpont óra értéke.
+    MINUTE(i): időpont perc értéke.
+    MONTH(d): dátumhoz tartozó hónap sorszáma (1 = január, …, 12 = december).
+    NOW(): időbélyegző ÉÉÉÉ-HH-NN ÓÓ:PP:MM formátumban.
+    SECOND(i): időpont másodperc értéke.
+    YEAR(d): dátumhoz év.
+    A MySQL-ben a dátum-konstansot aposztrófok között és ÉÉÉÉ-HH-NN formában kell megadni.  

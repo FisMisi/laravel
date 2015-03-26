@@ -6,12 +6,13 @@ Táblák: pipa
         id,
         sort(varchar(3)), //HU,ENG
         name,             //HUNGARIAN,ENGLISH,CHINESE
+        active
     
     model_language //kapcsolótábla a gs_languages és a models táblák között
         id,
         gs_language_id,
         model_id
-
+        
 2. Modell által vállalt videó kategóriák: step2,ben megadhatja checkboxos listából, listában is meg kell jeleníteni
    
     

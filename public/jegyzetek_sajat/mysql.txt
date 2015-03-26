@@ -1,3 +1,0 @@
-DB osztály 68 oldal :-> PHP fejlesztés felsőfokon 350.oldal (333)
-
-explain            ->    segítségével megvizsgálhatjuk a lekérdezések működésének részleteit
