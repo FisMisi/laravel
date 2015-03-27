@@ -75,56 +75,64 @@ class ExampleTest extends TestCase
 
 }
 
-public static function downloadvideos() 
-    {
-         $query = self::join('storaged_video_types', 'storaged_video_types.id', '=', 'storaged_videos.type_id')
-                     ->leftJoin('models', 'storaged_videos.model_id', '=', 'models.id');
-        
-         $getArray = array("videos.video_id",
-                          "base_video_id",
-                          "length",
-                          "active",
-                          "active2",
-                          "created_at",
-                          "rating",
-                          "rating_l",
-                          "sum_rating",
-                          "sum_rating_l",
-                          "rating_number",
-                          "rating_number_l",
-                          "see_count",
-                          "see_count_l");
+//CONTROLLER
 
-        $count = $query->count();
+//videó exportálás
+    public static function downloadvideos() 
+    { 
+         $params = self::getParams(Input::all(),$datas=null);
+            
+         $query  = StoragedVideo::getVideoToAdminList(null,
+                        $params["activated_user"],$params["activated_admin"],$params["videoType"],
+                        $params["published_and_date"],$params["in_storage"],$params["over_trans_code"],
+                        $params["limit"], $params["page"]
+                  ); 
+
+        $count = $query['count'];
         $page = ceil($count/200);
         $basePath = storage_path();
         if (!file_exists($basePath.'/videoexport')) {
                 mkdir($basePath.'/videoexport', 0770, true);
         }
+        
         $path = $basePath.'/videoexport/';
         $file = "videos".date("Y_m_d_h_i_s").".csv";
         $del = ',';
-        $newRow = "\n";	
+        $newRow = "\n";
+        
         $exportData = '';
-        $exportData.= 'video id'.$del.'base id'.$del.'video length'.$del.'active by tags'.$del.'active'.$del.'created'.$del.'rating all'.$del.'local rating'.$del.'sum rating all'.$del.'rating number all'.$del.'sum rating local'.$del.'rating number local'.$del.'see video all'.$del.'see video local'.$newRow;
+        //első sor
+        
+        $exportData.= 'VIDEO ID'.$del.
+                      'VIDEO NAME'.$del.
+                      'VIDEO TITLE'.$del.
+                      'VIDEO TYPE'.$del.
+                      'ARTIST NAME'.$del.
+                      'ACTIVATED BY USER'.$del.
+                      'ACTIVATED BY ADMIN'.$del.
+                      'PUBLISHED AND DATE'.$del.
+                      'IN STORAGE'.$del.
+                      'RATING'.$del.
+                      'CREATED'.$del.
+                      'UPDATED'.$del.
+                      $newRow;
+        
         for($p = 0;$p < $page; $p++) {
                 file_put_contents($path."rows.txt", $p);
-                $idDatas = $query->take(200)->skip($p*200)->get($getArray)->toArray();
+                $idDatas = $query['videos'];
                 foreach($idDatas as $row) {
-                        $exportData.= $row['video_id'].$del
-                                     .$row['base_video_id'].$del
-                                     .$row['length'].$del
-                                     .$row['active'].$del
-                                     .$row['active2'].$del
-                                     .$row['created_at'].$del
+                        $exportData.= $row['id'].$del
+                                     .$row['videoName'].$del
+                                     .$row['videoTitle'].$del
+                                     .$row['videoTypeTitle'].$del
+                                     .$row['artist_name'].$del
+                                     .$row['active_user'].$del
+                                     .$row['active_admin'].$del
+                                     .$row['published_and_date'].$del
+                                     .$row['in_storage'].$del
                                      .$row['rating'].$del
-                                     .$row['rating_l'].$del
-                                     .$row['sum_rating'].$del
-                                     .$row['rating_number'].$del
-                                     .$row['sum_rating_l'].$del
-                                     .$row['rating_number_l'].$del
-                                     .$row['see_count'].$del
-                                     .$row['see_count_l']
+                                     .$row['created_at'].$del
+                                     .$row['updated_at'].$del
                                      .$newRow;
                 }
                 file_put_contents($path.$file, $exportData, FILE_APPEND | LOCK_EX);
@@ -133,3 +141,106 @@ public static function downloadvideos()
 
         return Response::download($path.$file, $file);
     }
+    
+    /**
+    * GET paraméterek alapján az export szűréshez és az adatbázis szűréshez szükséges paraméterek elő 
+    * állítása
+    *
+    * @param  array  $get 
+    * @return array
+    */
+    protected static function getParams($get=null,$datas)
+    {
+        //videó Típusokra való szűrés
+        $videoType = 0; //összes
+        if (isset($get['video_type'])) {
+                $videoType = $get['video_type'];
+                $datas['helperData']['video_type'] = $get['video_type'];
+        } else {
+                $datas['helperData']['video_type'] = 0;
+        }
+     
+        //user által aktivált
+        
+        $activated_user = 2;  //0 = nem, 1=igen, 2=egyik sem
+        if (isset($get['activated_user'])) {
+                $activated_user = $get['activated_user'];
+                $datas['helperData']['activated_user'] = $get['activated_user'];
+        } else {
+                $datas['helperData']['activated_user'] = 2;
+        }
+        
+        //admin által aktivált
+        
+        $activated_admin = 2;  //0 = nem, 1=igen, 2=egyik sem
+        if (isset($get['activated_admin'])) {
+                $activated_admin = $get['activated_admin'];
+                $datas['helperData']['activated_admin'] = $get['activated_admin'];
+        } else {
+                $datas['helperData']['activated_admin'] = 2;
+        }
+        
+        //lejárati dátum szerinti szűrés
+        
+        $published_and_date = 2;  //0 = nem, 1=igen, 2=egyik sem
+        if (isset($get['published_and_date'])) {
+                $published_and_date = $get['published_and_date'];
+                $datas['helperData']['published_and_date'] = $get['published_and_date'];
+        } else {
+                $datas['helperData']['published_and_date'] = 2;
+        }
+        
+        //storage-ban van e
+        
+        $in_storage = 2;  //0 = nem, 1=igen, 2=egyik sem
+        if (isset($get['in_storage'])) {
+                $in_storage = $get['in_storage'];
+                $datas['helperData']['in_storage'] = $get['in_storage'];
+        } else {
+                $datas['helperData']['in_storage'] = 2;
+        }
+        
+        //átesett minden transzformáláson
+        
+        $over_trans_code = 2;  //0 = nem, 1=igen, 2=egyik sem
+        if (isset($get['over_trans_code'])) {
+                $over_trans_code = $get['over_trans_code'];
+                $datas['helperData']['over_trans_code'] = $get['over_trans_code'];
+        } else {
+                $datas['helperData']['over_trans_code'] = 2;
+        }
+        
+        //lapozó
+        $limit = 20;
+        if (isset($get['limit'])) {
+                $limit = $get['limit'];
+                $datas['helperData']['limit'] = $get['limit'];
+        } else {
+                $datas['helperData']['limit'] = 20;
+        }
+
+        $page = 1;
+        if (isset($get['page'])) {
+                $page = $get['page'];
+                $datas['helperData']['page'] = $get['page'];
+        } else {
+                $datas['helperData']['page'] = 1;
+        }
+        
+        return [
+            "datas"              => $datas,
+            "videoType"          => $videoType,
+            "activated_user"     => $activated_user,
+            "activated_admin"    => $activated_admin,
+            "published_and_date" => $published_and_date,
+            "in_storage"         => $in_storage,
+            "over_trans_code"    => $over_trans_code,
+            "limit"              => $limit,
+            "page"               => $page
+        ];
+    }
+    
+    // View::
+    
+     <a class="btn btn-primary btn-sm" @if (!count($helperDataJson['videos']))  disabled="disabled" @endif   href={{ route('/administrator/video_storage/videodownload',$_GET) }}>Export Videos</a>
+            
