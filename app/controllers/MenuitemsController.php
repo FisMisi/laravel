@@ -11,7 +11,7 @@ class MenuitemsController extends \BaseController
             $categories[$categ->id] = $categ->name;
         }
         return View::make('menuitems.index')
-                        ->with('menuitems', $menuitems)
+                        ->withMenuitems($menuitems)
                         ->with('categories', $categories);
     }
 
@@ -63,7 +63,8 @@ class MenuitemsController extends \BaseController
                         ->withErrors($valid);
     }
 
-    public function delProd($id) {
+    public function destroy($id) 
+    {
         $model = Menuitem::find($id);
 
         if ($model) {

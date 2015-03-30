@@ -55,8 +55,6 @@ class AdminMenuitemController extends \BaseController {
          
         $query = Menuitem::getQuery($params['availability'],$params['type']);
          
-        $getArray = Menuitem::$select_cols;
-
         $count = $query->count();
         $page = ceil($count/4);
         $basePath = public_path();
@@ -67,8 +65,9 @@ class AdminMenuitemController extends \BaseController {
         $file = "users".date("Y_m_d_h_i_s").".csv";
         $del = ',';
         $newRow = "\n";	
-        $exportData = '';
         
+        //első sor
+        $exportData = '';
         $exportData .= 'Menuitem ID'.$del
                        .'PRODUCT NAME'.$del
                        .'CATEG NAME'.$del
@@ -89,8 +88,10 @@ class AdminMenuitemController extends \BaseController {
 
         return Response::download($path.$file, $file);
     }
+    
   
-    public function create() {
+    public function create() 
+    {
         return View::make('menuitems.create');
     }
     

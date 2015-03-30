@@ -194,6 +194,12 @@ ________________________________________________________________________________
 CONTROLLER
 ###################################################################################################################################
 
+VÁLTOZÓ ÁTADÁSA VIEW-NAK:
+  a, return View::make('menuitems.index')->with('categories',$categories);
+  b, return View::make('menuitems.index')->withCategories($categories);   //with utáni szar a változó neve, ha van közte nagy betű, akkor a  viewban _ jellel kell helyettesíteni
+    return View::make('menuitems.index');
+  c, View::make('index',compact('data'))  //compact-nál a változó neve azonos a view-ban használatoshoz
+
 1(a). php artisan controller:make UserController
 
  vagy ha van generate csomagom akkor
@@ -703,6 +709,43 @@ ________________________________________________________________________________
 RECEPTEK:
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+Destroy buttom
+==============
+
+Route:
+      Route::delete('menuitems/destroy/{id}', array('as' => 'destroy', 'uses' => 'MenuitemsController@destroy'));
+Conntroller:
+      public function destroy($id) 
+    {
+        $model = Menuitem::find($id);
+
+        if ($model) {
+            File::delete('products/' . $model->image);
+            $model->delete();
+            return Redirect::route('menuitems.index')
+                            ->with('message', 'Sikeresen törölve lett a termék');
+        }
+
+        return Redirect::back()
+                        ->with('message', 'Nincs ilyen termék');
+    }
+ View:
+      {{Form::open(array('route'=>array('destroy',$item->id),'method'=>'delete')) }}
+                    <button type="submit" href="{{ URL::route('destroy', $item->id) }} class="btn btn-danger btn-sm">Törlés</button>
+      {{Form::close()}}
+
+
+FULL DESTROY button
+===================
+
+Related destroy === kapcsoló táblában is takarítás, ha töröljük  a főbb id-et:
+
+(főtábla)Modelban, amire hivatkoznak a kapcsolótáblák:
+    public function delete()   // felüll definiáljuk a delete metódust amit meghívunk a kontrolerben, pl.: a destroy()-ban
+    {
+      KapcsolóTábla::where('főtábla_id', $this->id)->delete();
+      parent::delete();
+    }         
 
 Beléptetés
 ==========
@@ -919,6 +962,8 @@ Multi File feltöltés:
         $categ = UserCategory::getCategoryRules($types);
         
         $valid_categories = Validator::make(Input::all(),$categ['newRules'],$categ['newMessages']);
+
+        
 
 ___________________________________________________________________________________________________________________________
 BEEMELT KOMPONENSEK

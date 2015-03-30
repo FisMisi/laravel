@@ -12,7 +12,7 @@
                 {{ Form::label('type','Típus') }}
                 {{ Form::select('type', array('all' => '- All -')+$categories,null, array('selected'=>'all', 'class' => 'form-control')) }}
                 {{ Form::submit('GO',array('class'=>'btn btn-success')) }}
-                <a class="btn btn-info" href="{{ route('/admin/menuitems/exportItems',$_GET) }}">Export Items</a>
+                <a class="btn btn-primary btn-sm" @if (!count($menuitems))  disabled="disabled" @endif   href={{ route('/admin/menuitems/exportItems',$_GET) }}>Export</a>
             {{ Form::close() }}
             
         </div>
