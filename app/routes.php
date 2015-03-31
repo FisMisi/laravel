@@ -11,6 +11,13 @@
 |
 */
 
+//public oldal
+Route::group(array('before' => 'auth'),function()
+{
+    Route::any('/borok/bor_statusz',array('as'=>'/borok/bor_statusz', 'uses' =>'BorController@setBorStatusz'));
+    Route::resource('/borok','BorController',array('except' => array('show')));
+});
+
 /*Admin section*/
 Route::group(array('before' => 'auth'),function()
 {   

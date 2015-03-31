@@ -244,68 +244,6 @@ class ExampleTest extends TestCase
     
      <a class="btn btn-primary btn-sm" @if (!count($helperDataJson['videos']))  disabled="disabled" @endif   href={{ route('/administrator/video_storage/videodownload',$_GET) }}>Export Videos</a>
             
-    //AJAX
-     
-      //ajax hívás ami lekéri a modelhez tartozó videó active_user értékét
-    public static function getVideoStatusz() 
-    {	
-                $data = Input::all();
-		//$modelId = $data['modelId'];
-		$videoId = $data['videoid'];
-                $video = StoragedVideo::find($videoId);
-                
-                 if($video->active_user == 1){
-                    $video->active_user = 0;  
-                  }else{
-                    $video->active_user = 1;  
-                  }
-        
-                $video->update();
-		
-		$fleg = $video->active_user;
-               
-		return $fleg;             
-    }
     
-    
-    //View
-        <script>
-    
-function setModelVideoState(vid) {
-    var datastring = 'videoid='+vid;
-    
-    $.ajax({
-            type: "POST",
-            url: "/postmodelregistraton/step2/video_statusz",
-            data: datastring,
-            success: function(data){
-                if(data == 1){
-                    $("#statusz").html("Inactivated");
-                }else{
-                    $("#statusz").html("Activated");
-                } 				
-            }
-    }, 'json');
-    
-}    
-    
-$("document").ready(function()
-{
-	$("#statusz").click(function(event) {
-            
-            var videoId    = $("#video_id").val();
-            setModelVideoState(videoId);
-	});
-        
-});
-</script>
+   
 
-
-<a name='statusz' id="statusz">
-                     
-                       @if($video->active_user == 1)
-                           Inactivated
-                       @else
-                           Activated
-                       @endif
-                     </a>
