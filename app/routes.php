@@ -101,6 +101,9 @@ Route::any('menuitems/createItem', array('as' => 'menuitems.createItem', 'uses' 
 Route::delete('menuitems/destroy/{id}', array('as' => 'destroy', 'uses' => 'MenuitemsController@destroy'));
 Route::any('menuitems/show/{id}', array('as'=>'menuitems.show', 'uses'=>'MenuitemsController@getShow'));
 Route::any('menuitems/search', array('as'=>'menuitems.search', 'uses'=>'MenuitemsController@getSearch'));
+Route::any('menuitems/cart', array('as'=>'menuitems/cart', 'uses'=>'MenuitemsController@getCart'));
+Route::any('menuitems/removeitem/{identifier}', array('as'=>'menuitems/removeitem', 'uses'=>'MenuitemsController@getRemoveitem'));
+Route::any('menuitems/addtocart', array('as'=>'menuitems/addtocart', 'uses'=>'MenuitemsController@postAddtocart'));
 
 Route::any('products',array('as' => 'products.index', 'uses' => 'ProductsController@index'));
 Route::any('products/lists',array('as' => 'products.lists', 'uses' => 'ProductsController@lists'));

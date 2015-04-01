@@ -6,7 +6,11 @@
 	"require": {
 		"laravel/framework": "4.2.*",
                 "intervention/image": "dev-master",
-                "fzaninotto/faker": "1.3.*@dev"
+                "fzaninotto/faker": "1.3.*@dev",
+                "moltin/currency": "dev-master",
+                "moltin/tax": "dev-master",
+                "moltin/cart": "dev-master",
+                "moltin/laravel-cart": "dev-master"
 	},
 	"autoload": {
 		"classmap": [
@@ -34,5 +38,6 @@
 	"config": {
 		"preferred-install": "dist"
 	},
-	"minimum-stability": "stable"
+	"minimum-stability": "dev",
+        "prefer-stable": true
 }

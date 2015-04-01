@@ -964,7 +964,27 @@ Multi File feltöltés:
         $valid_categories = Validator::make(Input::all(),$categ['newRules'],$categ['newMessages']);
 
         
+  PAYPALL
+      Laravel Cart add
+____________________
 
+
+0.composer.json-ba: (http://stackoverflow.com/questions/21571922/i-can-not-get-moltin-laravel-cart-to-install)
+  "require":
+            ...
+            "moltin/currency": "dev-master",
+            "moltin/tax": "dev-master",
+            "moltin/cart": "dev-master",
+            "moltin/laravel-cart": "dev-master"
+
+ b. file végére:
+    "minimum-stability": "dev",
+        "prefer-stable": true
+
+1. config/app.php - ba felvenni az aliasest meg a másikat // le van írva githubon
+
+
+Berak egy filtert a konstruktorba, ami a kosárra vonatkozik
 ___________________________________________________________________________________________________________________________
 BEEMELT KOMPONENSEK
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&

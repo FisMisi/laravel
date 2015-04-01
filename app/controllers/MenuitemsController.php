@@ -91,5 +91,38 @@ class MenuitemsController extends \BaseController
 
         return Redirect::back()->with('message', 'Nincs ilyen termék');
     }
+    
+    //Kosaras lófaszok
+    
+    public function postAddtocart()
+    {
+        $product = Menuitem::find(Input::get('id'));
+        $quantity = Input::get('quantity');
+        
+        Cart::insert(array(
+            'id' => $product->id,
+            'name' => $product->name,
+            'price' => 500,
+            'quantity'=> $quantity,
+            'image' => $product->image
+        ));
+        
+        return Redirect::to('menuitems/cart');
+    }
+    
+    public function getCart()
+    {
+        return View::make('menuitems.cart')->withProducts(Cart::contents());
+    }
+    
+    
+    public function getRemoveitem($id)
+    {
+       $item = Cart::item($id);
+       $item->remove();
+       
+       return Redirect::to('menuitems/cart');
+    }
+    
 
 }

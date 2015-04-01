@@ -12,6 +12,16 @@
                 {{Form::open(array('route'=>array('destroy',$item->id),'method'=>'delete')) }}
                     <button type="submit" href="{{ URL::route('destroy', $item->id) }} class="btn btn-danger btn-sm">Törlés</button>
                 {{Form::close()}}
+                
+                {{ Form::open(array('url'=>'menuitems/addtocart')) }}
+                    {{ Form::hidden('quantity',1) }}
+                    {{ Form::hidden('quantity',1) }}
+                    {{ Form::hidden('id',$item->id) }}
+                    <button type="submit" class="btn btn-success btn-sm">
+                        <span class="price"> {{ $item->price }} </span>
+                        ADD To Cart
+                    </button>
+                {{ Form::close() }}
             </li>
         @endforeach
         </ul>
