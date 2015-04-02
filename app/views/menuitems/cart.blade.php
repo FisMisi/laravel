@@ -13,18 +13,25 @@
             <th>Mennyiség</th>
             <th>Subtotal</th>
         </tr>
+        <?php $counter=0; ?>
         @foreach($products as $item)
             <tr>
-                <td> {{ $item->id }} </td>
+                <td> 
+                    {{ $item->id }}
+                    {{ Form::hidden('item_id',$item->id) }}
+                </td>
                 <td>
                     {{ HTML::image($item->image, $item->name, array('width' => '50')) }}
                     {{ link_to_route('menuitems.show', $item->name,array($item->id),array('class' => 'btn btn-link')) }}
+                    {{ Form::hidden('item_name',$item->name) }}
                 </td>
                 <td>
                     {{ $item->price }}
+                    {{ Form::hidden('item_price',$item->price) }}
                 </td>
                 <td>
                     {{ $item->quantity }}
+                    {{ Form::hidden('item_qtt',$item->quantity) }}
                 </td>
                 <td>
                     {{ $item->price }}
@@ -40,12 +47,11 @@
                 <span> Total: {{ Cart::total() }} </span> <br />
                 
                 <input type="hidden" name="cmd" value="_xclick">
-                <input type="hidden" name="business" value="office@shop.com">
-                <input type="hidden" name="item_name" value="eCommerce Store Purchase">
+                <input type="hidden" name="business" value="teszt@ikron.hu">
                 <input type="hidden" name="amount" value="{{ Cart::total() }}">
                 <input type="hidden" name="first_namet" value="Markó">
                 <input type="hidden" name="last_name" value="Mihály">
-                <input type="hidden" name="amount" value="mihaly.richard.marko@gmail.com">
+                <input type="hidden" name="user" value="mihaly.richard.marko@gmail.com">
                 
                 {{ HTML::link('/','Continoue Shoping', array('class'=>'btn btn-link')) }}
                 <input type="submit" value="Kifizetés PayPal">

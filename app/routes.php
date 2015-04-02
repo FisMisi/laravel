@@ -11,7 +11,7 @@
 |
 */
 
-//paypall
+#paypall
 
 // Add this route for checkout or submit form to pass the item into paypal
 Route::post('payment', array(
@@ -23,6 +23,8 @@ Route::get('payment/status', array(
     'as' => 'payment.status',
     'uses' => 'PaypalController@getPaymentStatus',
 ));
+
+
 
 //public oldal
 Route::group(array('before' => 'auth'),function()
