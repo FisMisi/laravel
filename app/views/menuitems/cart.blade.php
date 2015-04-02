@@ -4,7 +4,7 @@
 <h1>Kosár elemei</h1>
 
     @if(count($products))
-    <form action="https://www.paypal.com/cgi-bin/webscr" method="POST">
+    {{ Form::open(array('route' => 'payment', 'class' => 'form-horizontal')) }}
     <table class="table-striped">
         <tr>
             <th>#</th>
@@ -52,7 +52,7 @@
             </td>
         </tr>
     </table>
-    </form>
+    {{ Form::close() }}
       
     @else
         <p>Nincs megjelenítendő elem</p>

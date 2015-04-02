@@ -10,7 +10,8 @@
                 "moltin/currency": "dev-master",
                 "moltin/tax": "dev-master",
                 "moltin/cart": "dev-master",
-                "moltin/laravel-cart": "dev-master"
+                "moltin/laravel-cart": "dev-master",
+                "paypal/rest-api-sdk-php": "*"
 	},
 	"autoload": {
 		"classmap": [
