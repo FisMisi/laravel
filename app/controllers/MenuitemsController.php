@@ -102,7 +102,7 @@ class MenuitemsController extends \BaseController
         Cart::insert(array(
             'id' => $product->id,
             'name' => $product->name,
-            'price' => 500,
+            'price' => $product->price,
             'quantity'=> $quantity,
             'image' => $product->image
         ));

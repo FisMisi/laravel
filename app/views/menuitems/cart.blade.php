@@ -5,7 +5,7 @@
 
     @if(count($products))
     {{ Form::open(array('route' => 'payment', 'class' => 'form-horizontal')) }}
-    <table class="table-striped">
+    <table class="table table-striped">
         <tr>
             <th>#</th>
             <th>Product Name</th>
@@ -15,30 +15,13 @@
         </tr>
         <?php $counter=0; ?>
         @foreach($products as $item)
-            <tr>
-                <td> 
-                    {{ $item->id }}
-                    {{ Form::hidden('item_id',$item->id) }}
-                </td>
-                <td>
-                    {{ HTML::image($item->image, $item->name, array('width' => '50')) }}
-                    {{ link_to_route('menuitems.show', $item->name,array($item->id),array('class' => 'btn btn-link')) }}
-                    {{ Form::hidden('item_name',$item->name) }}
-                </td>
-                <td>
-                    {{ $item->price }}
-                    {{ Form::hidden('item_price',$item->price) }}
-                </td>
-                <td>
-                    {{ $item->quantity }}
-                    {{ Form::hidden('item_qtt',$item->quantity) }}
-                </td>
-                <td>
-                    {{ $item->price }}
-                    <a href="/menuitems/removeitem/{{ $item->identifier }}">Törlés a kosárból</a>
-                </td>
-               
-            </tr>
+            @include('layouts.partials.cartitem',array(
+                                                'item'=>$item,
+                                                'counter'=>$counter
+                                                ))
+            <?php 
+                $counter++;
+            ?>
         @endforeach
         
         <tr>
@@ -53,7 +36,7 @@
                 <input type="hidden" name="last_name" value="Mihály">
                 <input type="hidden" name="user" value="mihaly.richard.marko@gmail.com">
                 
-                {{ HTML::link('/','Continoue Shoping', array('class'=>'btn btn-link')) }}
+                {{ HTML::link('/menuitems','Continoue Shoping', array('class'=>'btn btn-link')) }}
                 <input type="submit" value="Kifizetés PayPal">
             </td>
         </tr>

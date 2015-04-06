@@ -79,6 +79,12 @@
                             @if (Session::has('message'))
                             <p class="bg-primary">{{Session::get('message')}}</p>
                             @endif
+                            @if (Session::has('error'))
+                            <p class="bg-primary">{{Session::get('error')}}</p>
+                            @endif
+                            @if (Session::has('success'))
+                            <p class="bg-primary">{{Session::get('success')}}</p>
+                            @endif
                         </div>
                         @yield('content')    
                     </div>

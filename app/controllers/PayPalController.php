@@ -30,34 +30,41 @@ class PayPalController extends \BaseController {
     }
 
     public function postPayment() {
-        dd(Input::all());
+        //dd(Input::all());
+        //fizetési app kiválasztása
         $payer = new Payer();
         $payer->setPaymentMethod('paypal');
-
-        $item_1 = new Item();
-        $item_1->setName('Item 1') // item name
-                ->setCurrency('USD')
-                ->setQuantity(2)
-                ->setPrice('150'); // unit price
-
-        $item_2 = new Item();
-        $item_2->setName('Item 2')
-                ->setCurrency('USD')
-                ->setQuantity(4)
-                ->setPrice('70');
-
+        
+        //termékek feltöltése
+        $counter = 0;
+        $items = [];
+        
+        foreach (Input::all() as $input)
+        {
+            if(Input::has('item_name'.$counter))
+            {              
+                 $item = new Item();
+                 $item->setName(Input::get('item_name'.$counter)) // item name
+                        ->setCurrency('USD')
+                        ->setQuantity(Input::get('item_qtt'.$counter))
+                        ->setPrice(Input::get('item_price'.$counter)); // unit price
+                 $items[] = $item;
+            }
+            $counter++;
+        }
+        
         // add item to list
         $item_list = new ItemList();
-        $item_list->setItems(array($item_1, $item_2, $item_3));
+        $item_list->setItems($items);
 
         $amount = new Amount();
         $amount->setCurrency('USD')
-                ->setTotal(580);
+                ->setTotal(Input::get('amount'));
 
         $transaction = new Transaction();
         $transaction->setAmount($amount)
                 ->setItemList($item_list)
-                ->setDescription('Your transaction description');
+                ->setDescription('Te bevásárló kosarad');
 
         $redirect_urls = new RedirectUrls();
         $redirect_urls->setReturnUrl(URL::route('payment.status')) // Specify return URL
@@ -95,7 +102,7 @@ class PayPalController extends \BaseController {
             return Redirect::away($redirect_url);
         }
 
-        return Redirect::route('original.route')
+        return Redirect::route('menuitems.index')
                         ->with('error', 'Unknown error occurred');
     }
 
@@ -108,8 +115,9 @@ class PayPalController extends \BaseController {
         // clear the session payment ID
         Session::forget('paypal_payment_id');
         if (empty(Input::get('PayerID')) || empty(Input::get('token'))) {
-            return Redirect::route('original.route')
-                            ->with('error', 'Payment failed');
+            //ha a paypal-on a kilépes linkfe kattintunk
+            return Redirect::route('menuitems.index')
+                            ->with('error', 'Fizetésből kilépve');
         }
         $payment = Payment::get($payment_id, $this->_api_context);
 
@@ -123,17 +131,20 @@ class PayPalController extends \BaseController {
 
         //Execute the payment
         $result = $payment->execute($execution, $this->_api_context);
+        
+        //itt lehet kiszedni a kapott adatokat paypaltol
         echo '<pre>';
         print_r($result);
         echo '</pre>';
         exit; // DEBUG RESULT, remove it later
 
         if ($result->getState() == 'approved') { // payment made
-            return Redirect::route('/')
+            //sikeres utaláskor
+            return Redirect::route('menuitems.index')
                             ->with('success', 'Payment success');
         }
-
-        return Redirect::route('/')
-                        ->with('error', 'Payment failed');
+            // ha valami beszart utaláskor
+        return Redirect::route('menuitems.index')
+                        ->with('error', 'Payment failed, because második');
     }
 }
