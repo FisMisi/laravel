@@ -38,28 +38,52 @@ class PayPalController extends \BaseController {
         //termékek feltöltése
         $counter = 0;
         $items = [];
+       
+        $tax = 0.25;
+        $totalTax = 0.00;
+        $total = 0;
         
         foreach (Input::all() as $input)
         {
+            $subTotal = 0;
+            $price = 0;
             if(Input::has('item_name'.$counter))
-            {              
+            {   
+                 $qtt = Input::get('item_qtt'.$counter);
+                 $price = Input::get('item_price'.$counter);
+                 $subTotal = $qtt * $price;
+                         
                  $item = new Item();
                  $item->setName(Input::get('item_name'.$counter)) // item name
                         ->setCurrency('USD')
-                        ->setQuantity(Input::get('item_qtt'.$counter))
-                        ->setPrice(Input::get('item_price'.$counter)); // unit price
+                        ->setQuantity($qtt)
+                        ->setPrice($price); // unit price
+                        
                  $items[] = $item;
             }
+            $total += $subTotal;
             $counter++;
+            $totalTax = $totalTax + ((($price*$tax)) * $qtt);
         }
-        
+//        var_dump($total);
+//        var_dump($totalTax);
+//        exit;
         // add item to list
         $item_list = new ItemList();
         $item_list->setItems($items);
-
+        
+        $details = new Details();
+        //össze kell adódnia
+        $details->setTax($totalTax)  //áfa értékek összege
+                ->setSubtotal($total); //áfa nélküli összeg
+        
+        //áfaösszegek + teljes összeg
+        $totalFine  = $totalTax + $total;
+        
         $amount = new Amount();
         $amount->setCurrency('USD')
-                ->setTotal(Input::get('amount'));
+                ->setTotal($totalFine)  //végösszeg áfával
+                ->setDetails($details);
 
         $transaction = new Transaction();
         $transaction->setAmount($amount)
