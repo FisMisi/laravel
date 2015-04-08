@@ -12,6 +12,7 @@ use PayPal\Api\RedirectUrls;
 use PayPal\Api\ExecutePayment;
 use PayPal\Api\PaymentExecution;
 use PayPal\Api\Transaction;
+use PayPal\Exception\PayPalConnectionException;
 
 /**
  * Description of PayPalController
@@ -91,8 +92,8 @@ class PayPalController extends \BaseController {
                 ->setDescription('Te bevásárló kosarad');
 
         $redirect_urls = new RedirectUrls();
-        $redirect_urls->setReturnUrl(URL::route('payment.status')) // Specify return URL
-                ->setCancelUrl(URL::route('payment.status'));
+        $redirect_urls->setReturnUrl(URL::route('payment.status')) // PayPalról vissza érkező url
+                ->setCancelUrl(URL::route('payment.status'));     //Ha kilépbnénk a paypal oldalon majd ide irányíts URL
 
         $payment = new Payment();
         $payment->setIntent('Sale')
@@ -101,31 +102,44 @@ class PayPalController extends \BaseController {
                 ->setTransactions(array($transaction));
 
         try {
-                $payment->create($this->_api_context);
-            } catch (\PayPal\Exception\PPConnectionException $ex) {
-                if (\Config::get('app.debug')) {
+              //fizetési objektum létrehozása az apinak
+              $payment->create($this->_api_context);
+            } catch (PayPalConnectionException $ex) { // TO DO urlt meg kéne adni
+                if (Config::get('app.debug')) {     //ha a config mappában, az app file, debug változó értéke true (amúgy most az)
                     echo "Exception: " . $ex->getMessage() . PHP_EOL;
                     $err_data = json_decode($ex->getData(), true);
+                    var_dump($err_data);
                     exit;
                 } else {
                     die('Some error occur, sorry for inconvenient');
                 }
         }
-
+        
+        //ha sikerült a létrehozás megyünk tovább ...
+        
         foreach ($payment->getLinks() as $link) {
             if ($link->getRel() == 'approval_url') {
-                $redirect_url = $link->getHref();
+                $redirect_url = $link->getHref();  //összeállított url
                 break;
             }
         }
 
-        // add payment ID to session
+        // sessionbe letároljuk a fizetési azonosítót
         Session::put('paypal_payment_id', $payment->getId());
+       
+        //tranzakció létrehozása db-ben
+        $newTransaction = new TransactionsPaypal();
+        
+        $newTransaction->user_id = Auth::user()->id;
+        $newTransaction->payment_id = $payment->getId();
+        $newTransaction->save();
+        
         if (isset($redirect_url)) {
             // redirect to paypal
             return Redirect::away($redirect_url);
         }
-
+        
+        //egyébként redirekt az index oldalra ismeretlen hibával
         return Redirect::route('menuitems.index')
                         ->with('error', 'Unknown error occurred');
     }
@@ -143,6 +157,8 @@ class PayPalController extends \BaseController {
             return Redirect::route('menuitems.index')
                             ->with('error', 'Fizetésből kilépve');
         }
+        
+        //tranzakció adatait kérem itt le
         $payment = Payment::get($payment_id, $this->_api_context);
 
         // PaymentExecution object includes information necessary 
@@ -157,18 +173,23 @@ class PayPalController extends \BaseController {
         $result = $payment->execute($execution, $this->_api_context);
         
         //itt lehet kiszedni a kapott adatokat paypaltol
-        echo '<pre>';
-        print_r($result);
-        echo '</pre>';
-        exit; // DEBUG RESULT, remove it later
+//        echo '<pre>';
+//        print_r($result);
+//        echo '</pre>';
+//        exit; // DEBUG RESULT, remove it later
 
-        if ($result->getState() == 'approved') { // payment made
-            //sikeres utaláskor
+        if ($result->getState() == 'approved') { // sikeres tranzakció
+        
+            $succTransaction = TransactionsPaypal::where('payment_id','=',$payment_id)->first();
+           
+            $succTransaction->complate = 1;
+            $succTransaction->update();
+            
             return Redirect::route('menuitems.index')
                             ->with('success', 'Payment success');
         }
             // ha valami beszart utaláskor
         return Redirect::route('menuitems.index')
-                        ->with('error', 'Payment failed, because második');
+                        ->with('error', 'Payment failed');
     }
 }
