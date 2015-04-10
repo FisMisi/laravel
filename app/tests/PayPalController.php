@@ -12,6 +12,7 @@ use PayPal\Api\RedirectUrls;
 use PayPal\Api\ExecutePayment;
 use PayPal\Api\PaymentExecution;
 use PayPal\Api\Transaction;
+use PayPal\Exception\PayPalConnectionException;
 
 /**
  * Description of PayPalController
@@ -30,6 +31,12 @@ class PayPalController extends \BaseController {
     }
 
     public function postPayment() {
+        
+        if (isset($_GET['todbtest'])) {
+            $needDB = true;
+        } else {
+            $needDB = false;
+        }
         
         $payer = new Payer();
         $payer->setPaymentMethod('paypal');
@@ -68,6 +75,8 @@ class PayPalController extends \BaseController {
  //               ->setInvoiceNumber(uniqid())
                     ->setDescription('Your transaction description');
         
+       
+        
         $redirect_urls = new RedirectUrls();
         $redirect_urls->setReturnUrl(URL::route('/postmodelregistraton/step2/payment_status')) // Specify return URL
                       ->setCancelUrl(URL::route('/postmodelregistraton/step2/payment_status'));
@@ -82,14 +91,72 @@ class PayPalController extends \BaseController {
         try {
                 $payment->create($this->_api_context);
              //  dd($payment);
-            } catch (\PayPal\Exception\PPConnectionException $ex) {
-                if (\Config::get('app.debug')) {
-                    echo "Exception: " . $ex->getMessage() . PHP_EOL;
+            } catch (PayPalConnectionException $ex) {
+                $error_white_list =[
+                    'CAPTURE_AMOUNT_LIMIT_EXCEEDED', // összeg meghaladta a megengedett határértéket
+                    'CREDIT_CARD_REFUSED',      //A használt hitelkártyát fizetési elutasították. Küldje el újra a kérést egy másik hitelkártyát.
+                    'DATA_RETRIEVAL',          //Probléma volt, hogy az adatok. Küldje el újra a kérést. Ha a hiba továbbra is fennáll, lépjen kapcsolatba 
+                    'EXPIRED_CREDIT_CARD',    //lejárt a kártya
+                    'FEATURE_UNSUPPORTED_FOR_PAYEE', //Funkció nem támogatott
+                    'INSUFFICIENT_FUNDS',     //Vevő nem tud fizetni - fedezethiány.
+                    'INTERNAL_SERVICE_ERROR', //Egy belső szolgáltatási hiba történt
+                    'INVALID_ACCOUNT_NUMBER', //számlaszám nem létezik
+                    'INVALID_ARGUMENT',       //Érvénytelen argumentum került elfogadásra a kérést.
+                    'INVALID_CITY_STATE_ZIP', //Érvénytelen állami városi zip kombináció
+                    'INVALID_EXPERIENCE_PROFILE_ID',
+                    'PAYEE_ACCOUNT_LOCKED_OR_CLOSED', //Kedvezményezett számlája zárolva van, vagy zárva
+                    'PAYEE_ACCOUNT_NO_CONFIRMED_EMAIL', //kedvezményezett számlája nem rendelkezik visszaigazolt e-mail
+                    'PAYEE_ACCOUNT_RESTRICTED',  //A számla megkapta ezt a fizetési korlátozott, és nem kapják meg a kifizetéseket ebben az időben.
+                    'PAYER_ACCOUNT_LOCKED_OR_CLOSED', //Payer le van zárva, vagy zárt.
+                    'PAYER_ACCOUNT_RESTRICTED', //fizető fél számlája korlátozott
+                    'PAYER_CANNOT_PAY',         //Payer nem tud fizetni, ez a tranzakció Paypal.
+                    'PAYER_EMPTY_BILLING_ADDRESS', //Számlázási cím üres
+                    'PAYMENT_APPROVAL_EXPIRED',  //Fizetés jóváhagyása már lejárt
+                    'PAYMENT_EXPIRED',           //A fizetési lejárt, mert túl sok idő telt el a fizetés létrehozása vagy jóváhagyása és végrehajtása, hogy fizetés. Indítsa újra a kifizetési kérelem kezdve fizetési létrehozását.
+                    'PAYMENT_REQUEST_ID_INVALID', //Paypal kérésére azonosítója érvénytelen. Kérjük, próbálj ki egy másikat.
+                    'PAYMENT_STATE_INVALID',  //A fizetési állam nem teszi lehetővé ezt a fajta kérést.
+                    'PERMISSION_DENIED', //Ön nem rendelkezik a megfelelő engedélyekkel a kérés teljesítéséhez.
+                    'REFUND_EXCEEDED_TRANSACTION_AMOUNT', //Visszatérítést megtagadta - a kért visszatérítés összegét meghaladja a tranzakció összegének megtérítését
+                    'REFUND_TIME_LIMIT_EXCEEDED', //Ez a tranzakció túl öreg
+                    'TOO_MANY_REAUTHORIZATIONS', //Egyszerre csak egyszer Engedélyezze újból a fizetésit.
+                    'TRANSACTION_ALREADY_REFUNDED',
+                    'TRANSACTION_LIMIT_EXCEEDED',  //Teljes kifizetés összege meghaladta a tranzakciós limit
+                    'TRANSACTION_REFUSED', //Ezt a kérést elutasították.
+                    'TRANSACTION_REFUSED_BY_PAYPAL_RISK', //Ez a tranzakció visszautasításra került a PayPal kockázatát.
+                    'TRANSACTION_REFUSED_PAYEE_PREFERENCE', //A kereskedelmi számla beállítások úgy vannak beállítva, hogy megtagadja az adott fajta tranzakciót.
+                    'ORDER_ALREADY_COMPLETED', //Megrendelés már elévül, lejárt vagy befejezett
+                    'ORDER_VOIDED', //Megrendelni semmissé vált
+                    'WALLET_TOO_MANY_ATTEMPTS', //Elérte a maximális fizetési kísérlet erre a token.
+                    'ACCOUNT_RESTRICTED', //Tranzakciót nem lehet feldolgozni. Kérjük, lépjen kapcsolatba PayPal Customer Service.
+                    'INVALID_CC_NUMBER', //Adjon meg egy érvényes hitelkártya számát és típusát
+                    'MISSING_CVV2', //Kérjük, adja CVV2 hitel-kártyát.
+                    'CALL_FAILED_PAYMENT', //A fizetés elmulasztása.
+                    'GATEWAY_DECLINE_CVV2', //Kérjük, érvényes hitelkártyát.
+                    'NEGATIVE_BALANCE', //negatív egyenleg
+                    'RECEIVER_ACCOUNT_LOCKED', //Vevő számláján zárolt vagy inaktív
+                    'VALIDATION_ERROR' // TESZTHEZ
+                    ];
+                    
                     $err_data = json_decode($ex->getData(), true);
-                    exit;
-                } else {
-                    die('Some error occur, sorry for inconvenient');
-                }
+                    $errors = [];
+                    
+                    foreach ($error_white_list as $error)
+                    { 
+                       if($err_data['name'] == $error){
+                           foreach ($err_data['details'] as $e)
+                            {
+                                $errors[] = $e['issue'];
+                            }  
+                       }
+                        
+                    }
+                    
+                    return Redirect::back()
+                        ->withErrors($errors);
+        }
+        
+       if($needDB) {
+            Transactions::saveToDB($transaction, $payment->getId());
         }
          
         foreach ($payment->getLinks() as $link) {
@@ -136,12 +203,23 @@ class PayPalController extends \BaseController {
 
         //Execute the payment
         $result = $payment->execute($execution, $this->_api_context);
-        echo '<pre>';
-        print_r($result.'asdasdasd');
-        echo '</pre>';
-        exit; // DEBUG RESULT, remove it later
+       
 
         if ($result->getState() == 'approved') { // payment made
+            
+            //email küldés
+            //view,data,callback
+            Mail::send('emails.paypal', array('name'=>'Fis'), function($message)
+            {
+                $message->to('marko.mihaly@ikron.hu','Ikronos')
+                        ->subject('Sikeres befizetés ma');
+            });
+            
+             echo '<pre>';
+        print_r($result.'_utalás után');
+        echo '</pre>';
+        exit; // DEBUG RESULT, remove it later
+            
             return Redirect::route('/postmodelregistraton/step2/payment_status')
                             ->with('success', 'Payment success');
         }
@@ -190,7 +268,7 @@ class PayPalController extends \BaseController {
             #dd("Created Single Synchronous Payout", "Payout", null, $request, $ex);
             exit(1);
         }
-        #dd('2');
+        dd($output);
         #dd("Created Single Synchronous Payout", "Payout", $output->getBatchHeader()->getPayoutBatchId(), $request, $output);
         return $output;
     }
