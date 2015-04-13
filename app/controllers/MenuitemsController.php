@@ -112,6 +112,7 @@ class MenuitemsController extends \BaseController
     
     public function getCart()
     {
+       
         return View::make('menuitems.cart')->withProducts(Cart::contents());
     }
     

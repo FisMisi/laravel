@@ -45,8 +45,10 @@
                         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                             <ul class="nav navbar-nav">
                                 
-                                <li {{{ (Request::is('menuitems*') ? 'class=active' : '') }}}><a href="{{URL::route('menuitems.index')}}">Menü</a></li>
-                                <li {{{ (Request::is('menuitems/cart') ? 'class=active' : '') }}}><a href="{{URL::to('menuitems/cart')}}">Kosár</a></li>
+                                <li {{{ (Request::is('menuitems') ? 'class=active' : '') }}}><a href="{{URL::route('menuitems.index')}}">Menü</a></li>
+                                <li {{{ (Request::is('menuitems/cart') ? 'class=active' : '') }}}>
+                                    <a href="{{{ (Auth::check() ? URL::to('menuitems/cart') : URL::route('login')) }}}">Kosár</a>
+                                </li>
                                 <li {{{ (Request::is('products*') ? 'class=active' : '') }}}><a href="{{URL::route('products.lists')}}">Kínálat megtekintése</a></li>
                                 @if(!Auth::check())
                                 <li><a href="{{URL::route('users.create')}}">Regisztráció </a></li>
@@ -79,9 +81,19 @@
                             @if (Session::has('message'))
                             <p class="bg-primary">{{Session::get('message')}}</p>
                             @endif
+                            
                             @if (Session::has('error'))
                             <p class="bg-primary">{{Session::get('error')}}</p>
                             @endif
+                            
+                            @if($errors->has())
+                                
+                                  @foreach($errors->all() as $error)
+                                    <p class="bg-primary">{{$error}}<p>
+                                  @endforeach
+                                 
+                            @endif
+                            
                             @if (Session::has('success'))
                             <p class="bg-primary">{{Session::get('success')}}</p>
                             @endif
