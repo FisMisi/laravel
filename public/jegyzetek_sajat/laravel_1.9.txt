@@ -597,7 +597,7 @@ Str::limit()    ---> hosszú nevek kiiratásánál limitálható a megjeleníten
                        datbázisban oszlop név
 
         label  =>  Form::label('for','szoveg')
-        text   =>  Form::text('nev','placeholder')
+        text   =>  Form::text('nev',null,array('placeholder'=>'lofasz','size'=>'4')
         select =>  Form::select('nev', array(
                   'option1 value' => 'text',
                   'option2 value' => 'text',))
