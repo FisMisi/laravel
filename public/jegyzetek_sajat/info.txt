@@ -318,6 +318,16 @@ PEAS
 http://fejlesztespeas.ibase:8080/peas/
 viktor, viktor
 
+felhasználónév:    m.misi
+jelszó:          1OBIaqr4n7
+
+
+PEAS INDÍTÁSA localról
+-----------------------
+
+1. erp_server, meg erp_face run
+2. http://localhost:8080/face/
+
 Bugzilla: Teszt1@ikron
 
 
@@ -331,3 +341,26 @@ password: s8kHZbeM
 
 nano /etc/cron.d/tarantula
 restart: service httpd restart
+
+SVN
+-----
+user: mmarko
+pass: d9b16c14ded01b14
+
+
+IKRON Intranet
+-------
+Felhasználónév: mmarko
+Jelszó: mmarko
+
+
+TESZTELÉS:
+,,,,,,,,,,,,,
+0. SAJÁT PROFILOMMAL KÉNE  BENT LENNI TESZTELNI
+1. JÖN MAJD ERROR PAGE
+   AZ ALÁ BEÍROM HOGY HOGYAN JÖTT LÉTRE A HIBA, FELELŐS MARAD
+
+2. MAJD AHOL TALÁLTAMN A HIBÁT ODA IS BELINKELEM AZ ERROR PAGE ID JÉT, MIUTÁN LEÍRTAM H HOGYAN JÖT, HOL JÖTTT A HIBA  
+
+
+
