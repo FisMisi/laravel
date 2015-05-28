@@ -1,0 +1,220 @@
+INSTALL:
+---------
+
+composer create-project laravel/laravel proj_nev --prefer-dist
+
+USE
+----
+	0. belépek a projekt mappába
+	1. php artisan serve      --- ezzel indítom el wamp nélkül
+	2. http://localhost:8000/
+
+php -S localhost:8888 -t public  --> ezzel állítom be a documentum rootot, melyik portot figyelje a laravel + el is indúl
+
+
+
+
+COMPOSER
+---------
+telepítés: http://webtuts.hu/tartalom/composer-telepitese-es-beallitasa-windows
+csomagok: https://packagist.org/packages/laravel/laravel
+
+http://webtuts.hu/tartalom/composer-telepitese-es-beallitasa-windows
+
+
+VIRTUAL BOX + VAGRANT + LARAVEL HOMESTEAD INSTALL telepít: https://laracasts.com/lessons/say-hello-to-laravel-homestead-two
+--------------------------------------------------
+
+TELEPÍTÉS:
+0. letölteni a vb. és a vagrantot és telepítem őket
+1. vagrant box hozzáadása -> homestead:  vagrant box add laravel/homestead
+/2. composer global require "laravel/homestead=~2.0"
+3. megfelelő mappában áljak: git clone https://github.com/laravel/homestead.git Homestead
+4. C:\Users\FisMisi\.homestead yaml fájl szerkesztése:
+    ip: "192.168.10.10"       //ezzel érem el a virtuális szervert --> windows/System32/drivers/etc/hosts ->ide ez az ip
+	memory: 2048            
+	cpus: 1
+
+	authorize: C:/Users/FisMisi/ssh/id_rsa.pub     // ssh public key
+
+	keys:
+	    - C:/Users/FisMisi/ssh/id_rsa
+
+	folders:
+	    - map: C:/laravel/Homestead   			//lokális gyökér könyvtár
+	      to: /home/vagrant/Code 				// virtuális szerver mappa
+
+	sites:
+	    - map: laravel.dev						//ez  megy  a windows/etc/host --> aliasként
+	      to: /home/vagrant/Code/Laravel/public // szerveren ezt a mappát érem el
+
+	databases:
+	    - homestead 
+
+	variables:
+	    - key: APP_ENV
+	      value: local
+5. windows/System32/drivers/etc/hosts : 192.168.10.10  laravel.dev    
+ vagrant reload --provision
+
+VIRTUAL BOX (VIRTUALIZÁCIÓ)
+----------------------------
+
+A virtualizáció azt jelenti, hogy a saját operációs rendszereden (akár windows-on is) fogsz futtatni egy másik operációs rendszert, ami úgy fog viselkedni mintha egy másik számítógép lenne, de közben saját gépedet használhatod saját programjaiddal.
+
+
+VAGRANT https://docs.vagrantup.com/v2/ , (https://scotch.io/tutorials/get-vagrant-up-and-running-in-no-time)
+--------
+
+	BEVEZETŐ:
+	---------
+
+		Gyakori probléma, hogy különböző projektjeink különböző környezetben futnak, más-más PHP verzió, eltérő MySql verzió, különböző beállítások. Arról már nem is beszélve, hogy sok Windows-t használó programozó fejleszt Linux-os szerverre. Mindez számtalan problémát okozhat a munkánk során. A Vagrant program erre a problémára ajánl egy rendkívül kényelmes megoldást.
+
+			Ahelyett, hogy a gépünkre külön-külön feltelepítünk Apache-t, PHP-t, MySql-t egy komplet virtuális Linux szervert telepítünk. Akár többet is, különböző paraméterekkel.
+
+			Mivel munkám során a legtöbbet LAMP környezetben dolgozom, emiatt emeltem ki a fentieket, ám Vagrant segítségével ugyanolyan könnyedén alakíthatunk ki Node.JS-t illetve MongoDB-t használó környezetet.
+
+			A Vagrant segít nekünk abban, hogy a lehető legkényelmesebben tudjuk ezeket a programokat felparaméterezni, majd utána egy-egy utasítással mindent telepíthetünk, illetve a szervert elindíthatjuk, illetve megállíthatjuk.
+
+			A környezethez tartozó leírófájl egy (vagy több) szöveges fájl, így verziókezelhető, a változások pontosan követhetőek. Illetve a környezet könnyen másolható.
+
+			Külön öröm, hogy anélkül tudok új programokkal kísérletezni, hogy a saját gépemet szemetelném vele tele.
+
+	FOGALMA:
+	--------
+		- Vagrant egy Konfigurációs rendszer ezzel fogunk konfigurálni és elindulni. (http://blog.tarhelypark.hu/tag/vagrant/)
+		- A Vagrant egy a VirtualBox-ra épülő megoldás, ahol egy egyszerűen szerkeszthető konfigurációs fájlban leírhatod, hogy milyen operációs rendszert szeretnél virtuálisan feltelepíteni, kiválasztod hozzá a beállításokat és az extra csomagokat. Eztuán bármennyi példányt indíthatsz a leírt konfiguráció alapján, és azok 100%-ban megegyezőek lesznek.
+		- A Vagrant VirtualBox-on alapul, emiatt bármilyen rendszeren használhatjuk, néhány egyszerű paranccsal már van egy kész rendszerünk. A virtuális környezeteket úgynevezett box fájlokban tárolja amik hordozhatóak, így például többfős projekteknél mindenki hasonló rendszeren tud tesztelni. De ha készítesz egy előre bekonfigurált alap rendszert azt legközelebb már csak le kell másolni és mehetnek rá a specifikus dolgok és mindez percek alatt megvan.
+		- VAgrant egy olyan eszköz "létrehozása és konfigurálása könnyű, reprodukálható, és hordozható fejlesztői környezetek."
+
+	ELŐNYÖK:
+	--------
+		
+		Nem számít, ha ők a Windows, Linux, vagy Mac, mindenki fejlesztőkörnyezet azonos eszközöket maradjon.
+		Lényege, hogy mindenki azonos konfigot használ, ha változtatni kell, akkor csak egy konfig filet kell módosítania  vagyranton és mindenkinél frissülnek a dolgok.
+
+		Gyakorlatilag nem telepítettél és konfiguráltál szerver programokat, ezeket mind előre telepítettem neked, így pillanatok alatt elindult a gép ahhoz képest, mintha nekiláttál volna egyenként mindent telepíteni.
+		Van egy saját szervered, amit akkor indítasz el amikor tetszik, és ha már nem kell leállítod vagy meg is szüntetheted. Ha legközelebb kell, majd megint elindítod.
+		A weboldalt (jelenleg a phpinfo oldal) a saját gépeden szerkeszted a kedvenc szerkesztő programoddal. Mivel a könyvtárat “bedrótoztuk” a szerverbe, ezért a változások azonnal látszanak, nem kell feltöltés, FTP stb.
+		A szerver programok, Apache, PHP, MySQL nem a te gépedre van telepítve, így ha a virtuális gépet leállítod, nem futnak, nem foglalják a memóriát
+
+
+	ELSŐ LÉPÉSEK
+	-------------
+		Laikus szempontból ez azt jelenti Vagrant veszi az összes fejfájást felállítása a helyi fejlesztési környezetet, és helyére szinte egyetlen config file, ahol válogathat milyen funkciókat szeretne a szerver, hogy van.
+
+
+		VAGRANT CONFIG FILE
+		--------------------
+
+			VAGRANT KONFIG FILE GENERÁTOR OLDAL (Elsőre keressünk egy Vagrantfile-t, amely segítségével felépítjük a virtuális környezetet): 
+				https://puphpet.com/#vagrantfile-local
+
+			Ehhez hasonló alap image-eket letölthetünk a felhőből is, például innen:
+				https://atlas.hashicorp.com/boxes/search?utm_source=vagrantcloud.com&vagrantcloud=1
+				http://www.vagrantbox.es
+
+				A letöltött fájlok között egy config.yaml fájlt kell majd szerkeszteni, ha a későbbiekben bármit módosítani szeretnénk.
+				Például, ha még Memcache-t szeretnénk pluszban feltelepíteni, akkor a konfigurációs fájlt az alábbiak szerint kell kiegészíteni.
+				A Vagrant file-ban megadod, hogy mi legyen a lokális virtuális gép domain neve, IP címe, mekkora memóriát használjon.
+
+				server:
+			    packages:
+			        - memcached
+				...
+				php:
+				    ...
+				    modules:
+				        php:
+				            ...
+				            - memcache
+				            - memcached
+
+				- A base box file egy belső file-szerverre kerülhet, a Vagrantfile pedig egyenesen mehet a Git-be.            
+
+			Kapcsolat a saját számítógépünk és a virtuális gép között:
+			------------------------------------------------------------
+				Most nekünk két kapcsolódási pont lesz érdekes.
+
+				Először, hogy hol találjuk a virtuális szervert? A Vagrant file-ban megadjuk azt az IP címet, amin keresztül a saját gépünkről érhetjük el. (Például a konfigurációs fájlban szerepel, hogy private_network: 192.168.56.101, akkor a http://192.168.56.101 címen a telepített webszerver fog elindulni. Érdemes a hosts fájlban a megadott IP címhez valami barátságosabb címet rendelni.)
+
+				A második kapcsolódási pont a saját gépünkön az a mappa, amit a virtuális szerver is használni fog. Ekkor a megszokott környezetben, az eddig használt szövegszerkesztőnkben tudjuk a Linux-os szerver fájljait módosítani. (Lásd a konfigurációs fájlban a synced_folder-nél a source és target értékeket.)
+
+		    NetBeans plugin
+		    ---------------
+				Talán kényelmesebb, ha a Vagrant utasításokat nem kell konzolba beírni, hanem közvetlenül a szövegszerkesztőből kattintgatással érhetjük el. A Vagrant plugin telepítése után először a Vagrant program indító fájlját kell megadni, majd projektenként beállíthatjuk, hogy melyik Vagrantfile tartozik az adott projekthez. Ezután a jobb alsó sarokban megjelenik a virtuális gép állapota, ahol a jobb egérgomb megnyomásával megjelennek a kiadható utasítások.
+
+
+
+	    TUTORIÁLOK
+	    -----------
+
+		 - Készítsünk saját fejlesztői környezetet (http://stack.hu/codeguide/vagrant)!
+		 - http://www.shiwaforce.com/lokalis-fejlesztoi-kornyezet-percek-alatt/
+
+
+		PARANCSOK:
+		----------
+			vagrant up: létrehozás, indítás
+			vagrant suspend: altatás, a gép nem törlődik, de nem fut
+			vagrant destroy: a gép teljes törlése
+			vagrant ssh: ssh bejelentkezés a gépre
+			vagrant reload: újraindítás
+
+
+
+HOMESTEAD (https://scotch.io/tutorials/getting-started-with-laravel-homestead)
+----------
+
+
+	FOGALMA:
+	---------
+		Laravel Homestead egy előre csomagolt Vagrant Box és Vagrant beállítás.
+
+	Ez magában foglalja:
+	--------------------
+
+		Ubuntu 14.04 - Könnyen használható és ismerős OS
+		PHP 5.5 - A legfrissebb stabil épít a PHP
+		Nginx - Gyorsabb, hatékonyabb, és könnyebben konfigurálható webszerver
+		MySQL
+		Postgres
+		Node (A Bower, Grunt, és Gulp) - Minden a front-end eszközöket és feladatot futók
+		Redis - A nagyteljesítményű Key Value Store és a cache-
+		Memcached - Több caching eszközök
+		Beanstalkd - Könnyen kezelhető SORSZERVER
+		Laravel Envoy - Laravel a Task Runner
+		Fabric + HipChat Extension
+
+		5.0
+		Ubuntu 14.04
+		PHP 5.6
+		HHVM
+		Nginx
+		MySQL
+		Postgres
+		Node (With Bower, Grunt, and Gulp)
+		Redis
+		Memcached
+		Beanstalkd
+		Laravel Envoy
+		Blackfire Profiler
+
+		putty:
+		------
+		127.0.0.1   2222
+		vagrant, vagrant
+
+		teszt
+		------
+		php -v
+
+		mysql
+		------
+		mysql -uhomestead -p
+		passw:secret
+
+		show databases;
+
+
