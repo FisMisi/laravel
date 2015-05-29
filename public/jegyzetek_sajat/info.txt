@@ -353,6 +353,9 @@ IKRON Intranet
 Felhasználónév: mmarko
 Jelszó: mmarko
 
+local
+m.misi
+jelszo: i1CcLnter8
 
 TESZTELÉS:
 ,,,,,,,,,,,,,
